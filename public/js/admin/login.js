@@ -1,8 +1,5 @@
 $(document).ready(function () 
 {
-
-    
-
     // RESENDING THE PASSCODE
     function success_response_function(response)
     {

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\v1\LogController;
+use App\Models\v1\Currency;
 
 class AdminController extends Controller
 {
@@ -23,6 +24,9 @@ class AdminController extends Controller
         return 'admin_phone_number';
     }
 
+    /**
+     * THIS FUNCTION REGISTES AN ADMIN AND PROVIDES THEM WITH AN ACCESS TOKEN
+     */
     public function register(Request $request)
     {
 
@@ -48,6 +52,9 @@ class AdminController extends Controller
         return response(["administrator" => $administrator, "access_token" => $accessToken]);
     }
 
+    /**
+     * THIS FUNCTION PROVIDES A REGISTERED ADMIN WITH AN ACCESS TOKEN
+     */
     public function login(Request $request)
     {
         $log_controller = new LogController();
@@ -92,6 +99,9 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * THIS FUNCTION REVOKES AN ADMIN'S ACCESS TOKEN
+     */
     public function logout(Request $request)
     {
         if (!Auth::guard('api')->check()) {
@@ -102,6 +112,10 @@ class AdminController extends Controller
     }
 
 
+
+    /**
+     * THIS FUNCTION RESENDS THE PASSCODE USED FOR THE SECOND LAYER LOGIN VERIFICATION
+     */
     public function resend_passcode(Request $request)
     {
         $log_controller = new LogController();
@@ -133,6 +147,10 @@ class AdminController extends Controller
         }
     }
 
+
+    /**
+     * THIS FUNCTION VERIFIES THE PASSCODE ENTERED
+     */
     public function verify_passcode(Request $request)
     {
         $log_controller = new LogController();
@@ -165,11 +183,46 @@ class AdminController extends Controller
             $passcode = Passcode::find($passcode[0]["passcode_id"]);
             $passcode->used = true;
             $passcode->save();
-            //$passcode_controller->update_passcode($passcode[0]["passcode_id"], $passcode[0]["user_type"], $passcode[0]["user_id"], $passcode[0]["passcode"], true);
+            $passcode_controller->update_passcode($passcode[0]["passcode_id"], $passcode[0]["user_type"], $passcode[0]["user_id"], $passcode[0]["passcode"], true);
             return response(["status" => "success", "message" => "Verification successful"]);
         } else {
             return response(["status" => "fail", "message" => "Verification failed. Try with the correct passcode and if this continues, restart login."]);
         }
+    }
+
+
+    /**
+     * THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
+     */
+    public function add_currency(Request $request)
+    {
+        $log_controller = new LogController();
+        $currency_controller = new CurrencyController();
+
+        if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+
+        if(auth()->user()->admin_flagged){
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Login Admin", "Passcode verification failed because admin is flagged");
+            $request->user()->token()->revoke();
+            return response(["status" => "fail", "message" => "Account access restricted"]);
+        }
+
+        $request->validate([
+            "currency_full_name" => "bail|required|max:100",
+            "currency_abbreviation" => "bail|required|max:3",
+            "currency_symbol" => "bail|required|max:20",
+        ]);
+
+        if($currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol)){
+            return response(["status" => "success", "message" => "Currency added successfuly"]);
+        } else {
+            return response(["status" => "fail", "message" => "Operation failed."]);
+        }
+
+
+
     }
     
 }

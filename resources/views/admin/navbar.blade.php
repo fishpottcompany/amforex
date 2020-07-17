@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top " id="navigation-example">
     <div class="container-fluid">
       <div class="navbar-wrapper">
-        <a class="navbar-brand" href="javascript:void(0)">User Profile</a>
+        <a class="navbar-brand" href="javascript:void(0)"><?php if(isset($page_name)){ echo $page_name; }?></a>
       </div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation" data-target="#navigation-example">
         <span class="sr-only">Toggle navigation</span>
@@ -51,7 +51,7 @@
                 Account
               </p>
             </a>
-            <div id="loader" class="customloader" style="height: 30px; width: 30px; display:none; "></div>
+            <div id="logoutloader" class="customloader" style="height: 30px; width: 30px; display:none; "></div>
           </li>
         </ul>
       </div>

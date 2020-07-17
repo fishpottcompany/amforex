@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// LOGIN
 Route::get('/admin/', function () {
     return view('/admin/login');
 });
@@ -27,6 +28,7 @@ Route::get('/admin/login', function () {
     return view('/admin/login');
 });
 
+//PASSCODE VERIFICATION
 Route::get('/admin/verification', function () {
     return view('admin/otp');
 });
@@ -36,8 +38,30 @@ Route::get('/admin/hold', function () {
 });
 
 
-Route::get('/admin/dashboard', function () {
-    return view('admin/dashboard');
+// RATES
+Route::get('/admin/rates/list', function () {
+    return view('admin/rates/list');
+});
+
+Route::get('/admin/rates/add', function () {
+    return view('admin/rates/add');
+});
+
+Route::get('/admin/rates/edit', function () {
+    return view('admin/rates/edit');
+});
+
+// CURRENCIES
+Route::get('/admin/currencies/list', function () {
+    return view('admin/currencies/list');
+});
+
+Route::get('/admin/currencies/add', function () {
+    return view('admin/currencies/add');
+});
+
+Route::get('/admin/rates/edit', function () {
+    return view('admin/rates/edit');
 });
 
 
@@ -55,8 +79,8 @@ Route::get('/login', function () {
     return view('bureau/login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+Route::get('/rates', function () {
+    return view('rates');
 });
 
 Route::get('/user', function () {

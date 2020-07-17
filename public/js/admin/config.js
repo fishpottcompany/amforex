@@ -16,12 +16,15 @@ var admin_api_send_passcode_url = `${host}/api/v1/admin/verification`;
 var admin_api_resend_passcode_url = `${host}/api/v1/admin/resend`;
 var admin_web_passcode_page_url = `${host}/admin/verification`;
 
-// DASHBOARD PAGE
-var admin_web_dashboard_page_url = `${host}/admin/dashboard`;
-
 // LOG OUT
 var admin_api_logout_url = `${host}/api/v1/admin/logout`;
 
+// RATES PAGE
+var admin_web_dashboard_page_url = `${host}/admin/rates/list`;
+
+// CURRENCIES OPTION LINKS
+var admin_api_currencies_add_currency_url = `${host}/api/v1/admin/currencies/add`;
+var admin_web_currencies_add_page_url = `${host}/admin/currencies/add`;
 
 
 var show_logging_in_console = true;
@@ -85,12 +88,12 @@ function sign_out_success(response)
 function sign_out_error(errorThrown)
 {
     show_notification("msg_holder", "danger", "Error", errorThrown);
-    fade_out_loader_and_fade_in_form("loader", "logoutspan");   
+    fade_out_loader_and_fade_in_form("logoutloader", "logoutspan");   
 }
 
 function sign_me_out()
 {    
-    fade_in_loader_and_fade_out_form("loader", "logoutspan");     
+    fade_in_loader_and_fade_out_form("logoutloader", "logoutspan");     
     var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
     send_restapi_request_to_server_from_form("get", admin_api_logout_url, bearer, "", "json", sign_out_success, sign_out_error);
 }

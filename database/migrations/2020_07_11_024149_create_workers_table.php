@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,7 +28,7 @@ class CreateWorkersTable extends Migration
             $table->string('worker_pin', 255);
             $table->string('password', 255);
             $table->string('creator_user_type', 255);
-            $table->string('creator_id', 255);
+            $table->unsignedBigInteger('creator_id');
             $table->timestamps();
         });
 
