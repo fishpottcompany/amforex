@@ -38,6 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
+<<<<<<< HEAD
             'provider' => 'administrator',
         ],
 
@@ -51,6 +52,16 @@ return [
             'driver' => 'passport',
             'provider' => 'administrator',
         ],
+=======
+            'provider' => 'users',
+        ],
+
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+>>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
     ],
 
     /*
@@ -76,11 +87,14 @@ return [
             'model' => App\User::class,
         ],
 
+<<<<<<< HEAD
         'administrator' => [
             'driver' => 'eloquent',
             'model' => App\Models\v1\Administrator::class,
         ],
 
+=======
+>>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

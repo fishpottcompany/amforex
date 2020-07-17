@@ -13,7 +13,10 @@
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "^7.0",
+<<<<<<< HEAD
         "laravel/passport": "^9.2",
+=======
+>>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
         "laravel/tinker": "^2.0"
     },
     "require-dev": {

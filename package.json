@@ -16,10 +16,14 @@
         "lodash": "^4.17.13",
         "resolve-url-loader": "^3.1.0",
         "sass": "^1.15.2",
+<<<<<<< HEAD
         "sass-loader": "^8.0.0",
         "vue-template-compiler": "^2.6.11"
     },
     "dependencies": {
         "three-dots": "^0.2.0"
+=======
+        "sass-loader": "^8.0.0"
+>>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
     }
 }
