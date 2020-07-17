@@ -43,13 +43,10 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
-<<<<<<< HEAD
 
         'administrator' => [
             \App\Http\Middleware\PassportCustomProvider::class
         ],
-=======
->>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
     ];
 
     /**

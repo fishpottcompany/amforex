@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-<<<<<<< HEAD
 
 Route::middleware('auth:api')->get('/administrator', function (Request $request) {
     return $request->user();
@@ -35,5 +34,3 @@ Route::middleware('auth:api')->get('/v1/admin/logout', 'Api\v1\AdminController@l
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 
-=======
->>>>>>> 0bbad4b12acda410c74ae099dfdf3e65c08fb551
