@@ -1,8 +1,8 @@
-<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
 $active_page = "currencies";
 $page_name = "Currency";
 ?>
+<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
 
 @section('customscripts')

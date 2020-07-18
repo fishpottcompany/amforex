@@ -22,6 +22,12 @@ class CreateCurrenciesTable extends Migration
             $table->boolean('currency_flagged');
             $table->timestamps();
         });
+
+        Schema::table('currencies', function (Blueprint $table) {
+            $table->unsignedBigInteger('admin_id');
+
+            $table->foreign('admin_id')->references('admin_id')->on('administrators');
+        });
     }
 
     /**

@@ -1,8 +1,8 @@
-<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
-$active_page = "rates";
-$page_name = "Rates";
+$active_page = "currencies";
+$page_name = "Currency";
 ?>
+<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
 
 @section('customscripts')
@@ -27,52 +27,32 @@ $page_name = "Rates";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Rates</h4>
-                      <p class="card-category">These are all the rates that are set on the system. Click the edit icon to make a change</p>
+                      <h4 class="card-title">Currencies</h4>
+                      <p class="card-category">These are all the currencies that are set on the system. Click any list item to edit it.</p>
                     </div>
                     <div class="card-body table-responsive">
                       <table class="table table-hover">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
-                          <th class="font-weight-bold">From</th>
-                          <th class="font-weight-bold">To</th>
-                          <th class="font-weight-bold">Rate</th>
-                          <th class="font-weight-bold">Update-On</th>
+                          <th class="font-weight-bold">Name</th>
+                          <th class="font-weight-bold">Short-Name</th>
+                          <th class="font-weight-bold">Symbol</th>
+                          <th class="font-weight-bold">Updated-On</th>
+                          <th class="font-weight-bold">Tradable</th>
                           <th class="font-weight-bold">Administrator</th>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>Dakota Rice</td>
-                            <td>$36,738</td>
-                            <td>Niger</td>
-                            <td>July 1st, 2020</td>
-                            <td>Niger</td>
-                          </tr>
-                          <tr>
-                            <td>2</td>
-                            <td>Minerva Hooper</td>
-                            <td>$23,789</td>
-                            <td>Curaçao</td>
-                            <td>July 1st, 2020</td>
-                            <td>Niger</td>
-                          </tr>
-                          <tr>
-                            <td>3</td>
-                            <td>Sage Rodriguez</td>
-                            <td>$56,142</td>
-                            <td>Netherlands</td>
-                            <td>July 1st, 2020</td>
-                            <td>Niger</td>
-                          </tr>
-                          <tr>
-                            <td>4</td>
-                            <td>Philip Chaney</td>
-                            <td>$38,735</td>
-                            <td>Korea, South</td>
-                            <td>July 1st, 2020</td>
-                            <td>Niger</td>
-                          </tr>
+                          @foreach($currencies as $key => $data)
+                              <tr>    
+                                <th style="font-weight: 5">{{$data->currency_id}}</th>
+                                <th style="font-weight: 5">{{$data->currency_full_name}}</th>
+                                <th style="font-weight: 5">{{$data->currency_abbreviation}}</th>
+                                <th style="font-weight: 5">{{$data->currency_symbol}}</th>
+                                <th style="font-weight: 5">{{$data->updated_at}}</th>  
+                                <th style="font-weight: 5"><?php if($data->currency_flagged == 0){echo "Yes";} else {echo "No";} ?></th>   
+                                <th style="font-weight: 5">{{$data->currency_full_name}}</th>                 
+                              </tr>
+                          @endforeach
                         </tbody>
                       </table>
                     </div>
