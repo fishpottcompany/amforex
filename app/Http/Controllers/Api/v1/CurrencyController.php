@@ -17,8 +17,6 @@ class CurrencyController extends Controller
         $currency->currency_symbol = $currency_symbol;
         $currency->currency_flagged = false;
         $currency->save();
-        return true;
-
     }
 
 }

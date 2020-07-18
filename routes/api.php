@@ -32,7 +32,7 @@ Route::middleware('auth:api')->get('/v1/admin/resend', 'Api\v1\AdminController@r
 
 Route::middleware('auth:api')->get('/v1/admin/logout', 'Api\v1\AdminController@logout');
 
-Route::middleware('auth:api')->post('/v1/admin/currencies/add', 'Api\v1\AdminController@currency_add');
+Route::middleware('auth:api')->post('/v1/admin/currencies/add', 'Api\v1\AdminController@add_currency');
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

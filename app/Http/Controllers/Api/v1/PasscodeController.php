@@ -24,7 +24,8 @@ class PasscodeController extends Controller
     }
 
     public function update_passcode($thispasscode_id, $user_type, $user_id, $thispasscode, $used_status){
-        $passcode = new Passcode();
+
+        $passcode = Passcode::find($thispasscode_id);
         $passcode->passcode_id = $thispasscode_id; 
         $passcode->user_type = $user_type; 
         $passcode->user_id = $user_id;

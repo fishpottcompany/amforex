@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Models\v1\Currency;
+use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
 use App\Mail\admin\PassCodeMail;
 use App\Models\v1\Administrator;
-use App\Models\v1\Passcode;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\v1\LogController;
-use App\Models\v1\Currency;
 
 class AdminController extends Controller
 {
@@ -40,7 +41,7 @@ class AdminController extends Controller
             "password" => "bail|required|confirmed|min:8|max:30"
         ]);
 
-        $validatedData["admin_pin"] = bcrypt($request->admin_pin);
+        $validatedData["admin_pin"] = Hash::make($request->admin_pin);
         $validatedData["password"] = bcrypt($request->password);
         $validatedData["admin_flagged"] = false;
 
@@ -70,7 +71,7 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Invalid Credentials"]);
         }
 
-        if(auth()->user()->admin_flagged){
+        if (auth()->user()->admin_flagged) {
             $log_controller->save_log("administrator", $request->admin_phone_number, "Login Admin", "1st-layer login failed because admin is flagged");
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
@@ -124,7 +125,7 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
 
-        if(auth()->user()->admin_flagged){
+        if (auth()->user()->admin_flagged) {
             $log_controller->save_log("administrator", auth()->user()->admin_id, "Login Admin", "Resend passcode failed because admin is flagged");
             $request->user()->token()->revoke();
             return response(["status" => "fail", "message" => "Account access restricted"]);
@@ -132,6 +133,7 @@ class AdminController extends Controller
 
         $passcode = Passcode::where([
             'user_id' => auth()->user()->admin_id,
+            'user_type' => "administrator",
             'used' => false
         ])
             ->orderBy('passcode_id', 'desc')
@@ -160,7 +162,7 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
 
-        if(auth()->user()->admin_flagged){
+        if (auth()->user()->admin_flagged) {
             $log_controller->save_log("administrator", auth()->user()->admin_id, "Login Admin", "Passcode verification failed because admin is flagged");
             $request->user()->token()->revoke();
             return response(["status" => "fail", "message" => "Account access restricted"]);
@@ -172,17 +174,16 @@ class AdminController extends Controller
 
         $passcode = Passcode::where([
             'user_id' => auth()->user()->admin_id,
+            'user_type' => "administrator",
             'passcode' => $request->passcode,
             'used' => false
         ])
-        ->orderBy('passcode_id', 'desc')
-        ->take(1)
-        ->get();
+            ->orderBy('passcode_id', 'desc')
+            ->take(1)
+            ->get();
+
 
         if (isset($passcode[0]["user_id"]) && $passcode[0]["user_id"] == auth()->user()->admin_id) {
-            $passcode = Passcode::find($passcode[0]["passcode_id"]);
-            $passcode->used = true;
-            $passcode->save();
             $passcode_controller->update_passcode($passcode[0]["passcode_id"], $passcode[0]["user_type"], $passcode[0]["user_id"], $passcode[0]["passcode"], true);
             return response(["status" => "success", "message" => "Verification successful"]);
         } else {
@@ -203,26 +204,29 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
 
-        if(auth()->user()->admin_flagged){
-            $log_controller->save_log("administrator", auth()->user()->admin_id, "Login Admin", "Passcode verification failed because admin is flagged");
-            $request->user()->token()->revoke();
-            return response(["status" => "fail", "message" => "Account access restricted"]);
-        }
-
         $request->validate([
             "currency_full_name" => "bail|required|max:100",
             "currency_abbreviation" => "bail|required|max:3",
             "currency_symbol" => "bail|required|max:20",
+            "admin_pin" => "bail|required|min:4|max:8",
         ]);
 
-        if($currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol)){
-            return response(["status" => "success", "message" => "Currency added successfuly"]);
-        } else {
-            return response(["status" => "fail", "message" => "Operation failed."]);
+        if (auth()->user()->admin_flagged) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because admin is flagged");
+            $request->user()->token()->revoke();
+            return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
+        if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because of incorrect pin");
+            return response(["status" => "fail", "message" => "Incorrect pin."]);
+        }
 
-
+        if (Currency::where('currency_abbreviation', '=', $request->currency_abbreviation)->exists()) {
+            return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
+        } else {
+            $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol);
+            return response(["status" => "success", "message" => "Currency added successfuly"]);
+        }
     }
-    
 }
