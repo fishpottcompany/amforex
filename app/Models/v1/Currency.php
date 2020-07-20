@@ -28,6 +28,7 @@ class Currency extends Model
         'currency_abbreviation', 
         'currency_symbol', 
         'currency_flagged', 
+        'admin_id', 
         'created_at',
         'updated_at',
     ];

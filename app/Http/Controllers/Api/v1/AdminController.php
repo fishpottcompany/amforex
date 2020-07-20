@@ -225,7 +225,7 @@ class AdminController extends Controller
         if (Currency::where('currency_abbreviation', '=', $request->currency_abbreviation)->exists()) {
             return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
         } else {
-            $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol);
+            $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, auth()->user()->admin_id);
             return response(["status" => "success", "message" => "Currency added successfuly"]);
         }
     }

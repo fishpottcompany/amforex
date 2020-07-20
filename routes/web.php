@@ -52,15 +52,12 @@ Route::get('/admin/rates/edit', function () {
 });
 
 // CURRENCIES
-/*
 
 Route::get('/admin/currencies/list', function () {
-    return view('admin/currencies/list');
-});
-
-*/
-Route::get('/admin/currencies/list', function () {
-    $currencies = DB::table('currencies')->get();
+    $currencies = DB::table('currencies')
+        ->join('administrators', 'currencies.admin_id', '=', 'administrators.admin_id')
+        ->select('currencies.*', 'administrators.admin_surname', 'administrators.admin_firstname')
+        ->get();
     return view('admin/currencies/list', ['currencies' => $currencies]);
 });
 
@@ -68,7 +65,7 @@ Route::get('/admin/currencies/add', function () {
     return view('admin/currencies/add');
 });
 
-Route::get('/admin/rates/edit', function () {
+Route::get('/admin/currencies/edit/{id}', function () {
     return view('admin/rates/edit');
 });
 

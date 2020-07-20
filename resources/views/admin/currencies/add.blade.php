@@ -1,6 +1,6 @@
 <?php
 $active_page = "currencies";
-$page_name = "Currency";
+$page_name = "Currencies";
 ?>
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
