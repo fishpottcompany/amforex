@@ -9,7 +9,7 @@ $page_name = "Currencies";
 <!-- CONFIG AND AUTH CHECK -->
 <script src="/js/admin/config.js"></script>
 <script src="/js/admin/check_auth.js"></script>
-@endsection()
+@endsection
 
 @section('navbar')
   @include('admin.navbar')
@@ -31,7 +31,13 @@ $page_name = "Currencies";
                       <p class="card-category">These are all the currencies that are set on the system. Click any list item to edit it.</p>
                     </div>
                     <div class="card-body table-responsive">
-                      <table class="table table-hover">
+                      <div class="row" id="loader">
+                        <div class="col-md-12 my-2 d-flex justify-content-center">
+                          <div class="dot-spin"></div>
+                        </div>
+                      </div>
+
+                      <table class="table table-hover" id="list_table" style="display: none;">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
                           <th class="font-weight-bold">Name</th>
@@ -41,18 +47,7 @@ $page_name = "Currencies";
                           <th class="font-weight-bold">Tradable</th>
                           <th class="font-weight-bold">Administrator</th>
                         </thead>
-                        <tbody>
-                          @foreach($currencies as $key => $data)
-                              <tr style="cursor: pointer;" class="currency" data-cid="{{$data->currency_id}}">    
-                                <th style="font-weight: 5">{{$data->currency_id}}</th>
-                                <th style="font-weight: 5">{{$data->currency_full_name}}</th>
-                                <th style="font-weight: 5">{{$data->currency_abbreviation}}</th>
-                                <th style="font-weight: 5">{{$data->currency_symbol}}</th>
-                                <th style="font-weight: 5">{{$data->updated_at}}</th>  
-                                <th style="font-weight: 5"><?php if($data->currency_flagged == 0){echo "Yes";} else {echo "No";} ?></th>   
-                                <th style="font-weight: 5">{{$data->admin_surname}} {{$data->admin_firstname}}</th>                 
-                              </tr>
-                          @endforeach
+                        <tbody id="table_body_list">
                         </tbody>
                       </table>
                     </div>
@@ -107,6 +102,10 @@ $page_name = "Currencies";
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
     <script src="/js/admin/currencies.js"></script>
+    
+    <script type="text/javascript">
+      get_all_currencies();
+    </script>
   </body>
   </html>
 @endsection

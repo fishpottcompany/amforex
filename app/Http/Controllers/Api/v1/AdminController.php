@@ -226,7 +226,70 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
         } else {
             $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, auth()->user()->admin_id);
-            return response(["status" => "success", "message" => "Currency added successfuly"]);
+            return response(["status" => "success", "message" => "Currency added successfully"]);
+        }
+    }
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE CURRENCIES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+    public function get_all_currencies(Request $request)
+    {
+        $log_controller = new LogController();
+        $currency_controller = new CurrencyController();
+
+        if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+
+        if (auth()->user()->admin_flagged) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Fetching all currencies failed because admin is flagged");
+            $request->user()->token()->revoke();
+            return response(["status" => "fail", "message" => "Account access restricted"]);
+        }
+
+        $currencies =  $currency_controller->get_all_currencies();  
+
+        return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
+    } 
+
+    public function get_one_currency(Request $request)
+    {
+
+        $log_controller = new LogController();
+        $currency_controller = new CurrencyController();
+
+        if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+
+        $request->validate([
+            "currency_full_name" => "bail|required|max:100",
+            "currency_abbreviation" => "bail|required|max:3",
+            "currency_symbol" => "bail|required|max:20",
+            "admin_pin" => "bail|required|min:4|max:8",
+        ]);
+
+        if (auth()->user()->admin_flagged) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because admin is flagged");
+            $request->user()->token()->revoke();
+            return response(["status" => "fail", "message" => "Account access restricted"]);
+        }
+
+
+        $currency = DB::table('currencies')->where('currency_id', '=', $d)->get();
+
+        if (Currency::where('currency_abbreviation', '=', $request->currency_abbreviation)->exists()) {
+            return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
+        } else {
+            $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, auth()->user()->admin_id);
+            return response(["status" => "success", "message" => "Currency added successfully"]);
         }
     }
 }

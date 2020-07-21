@@ -34,5 +34,7 @@ Route::middleware('auth:api')->get('/v1/admin/logout', 'Api\v1\AdminController@l
 
 Route::middleware('auth:api')->post('/v1/admin/currencies/add', 'Api\v1\AdminController@add_currency');
 
+Route::middleware('auth:api')->get('/v1/admin/currencies/list', 'Api\v1\AdminController@get_all_currencies');
+
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 
