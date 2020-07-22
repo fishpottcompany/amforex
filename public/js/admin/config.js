@@ -27,6 +27,8 @@ var admin_api_currencies_add_currency_url = `${host}/api/v1/admin/currencies/add
 var admin_web_currencies_add_page_url = `${host}/admin/currencies/add`;
 var admin_api_currencies_get_currency_list_url = `${host}/api/v1/admin/currencies/list`;
 var admin_web_currencies_edit_page_url = `${host}/admin/currencies/edit`;
+var admin_api_currencies_get_one_currency_url = `${host}/api/v1/admin/currencies/get/?currency_id=`;
+var admin_api_currencies_edit_currency_url = `${host}/api/v1/admin/currencies/edit`;
 
 
 var show_logging_in_console = true;

@@ -31,18 +31,18 @@ $page_name = "Currencies";
                       <p class="card-category">Edit a currency that forex bureaus can trade</p>
                     </div>
                     <div class="card-body">
-                      <div class="row" style="display: none" id="loader">
+                      <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
                       </div>
-                      <form id="acform">
+                      <form id="ecform"  style="display: none">
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">Currency Name (Eg: Ghana Cedis)</label>
-                              <input type="hidden" id="currency_id" name="id" class="form-control" required="required" readonly="readonly">
-                              <input type="text" name="currency_full_name" maxlength="100" class="form-control" required="required">
+                              <input type="hidden" style="display: none" id="currency_id" name="currency_id" class="form-control" required="required" readonly="readonly">
+                              <input type="text" id="currency_full_name" name="currency_full_name" maxlength="100" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -50,7 +50,7 @@ $page_name = "Currencies";
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">Currency Standard Abbreviation (Eg: GHS)</label>
-                              <input type="text" maxlength="3" name="currency_abbreviation" class="form-control" required="required">
+                              <input type="text" maxlength="3" id="currency_abbreviation" name="currency_abbreviation" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -58,7 +58,18 @@ $page_name = "Currencies";
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">Currency Symbol (Eg: ¢)</label>
-                              <input type="text" name="currency_symbol" class="form-control" required="required">
+                              <input type="text" id="currency_symbol" name="currency_symbol" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="tradable_input" id="tradable_input_label">Tradable Status</label>
+                              <select name="currency_flagged"class="form-control" id="tradable_input" required="required">
+                                <option value="0">Yes</option>
+                                <option value="1">No</option>
+                              </select>
                             </div>
                           </div>
                         </div>
@@ -70,7 +81,7 @@ $page_name = "Currencies";
                             </div>
                           </div>
                         </div>
-                        <button type="submit" class="btn btn-primary pull-right">Edit</button>
+                        <span id="submit_button_holder"></span>
                         <div class="clearfix"></div>
                       </form>
                     </div>
@@ -125,6 +136,9 @@ $page_name = "Currencies";
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
     <script src="/js/admin/currencies.js"></script>
+    <script type="text/javascript">
+      get_this_currency('<?php echo intval($currency_id); ?>');
+    </script>
   </body>
   </html>
 @endsection

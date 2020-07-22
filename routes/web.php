@@ -61,8 +61,8 @@ Route::get('/admin/currencies/add', function () {
     return view('admin/currencies/add');
 });
 
-Route::get('/admin/currencies/edit/{id}', function () {
-    return view('admin/currencies/edit');
+Route::get('/admin/currencies/edit/{id}', function ($id) {
+    return view('admin/currencies/edit', ['currency_id' => $id]);
 });
 
 

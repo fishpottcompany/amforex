@@ -7,6 +7,7 @@ use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
 use App\Mail\admin\PassCodeMail;
 use App\Models\v1\Administrator;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,9 +26,15 @@ class AdminController extends Controller
         return 'admin_phone_number';
     }
 
-    /**
-     * THIS FUNCTION REGISTES AN ADMIN AND PROVIDES THEM WITH AN ACCESS TOKEN
-     */
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION REGISTES AN ADMIN AND PROVIDES THEM WITH AN ACCESS TOKEN
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function register(Request $request)
     {
 
@@ -53,9 +60,16 @@ class AdminController extends Controller
         return response(["administrator" => $administrator, "access_token" => $accessToken]);
     }
 
-    /**
-     * THIS FUNCTION PROVIDES A REGISTERED ADMIN WITH AN ACCESS TOKEN
-     */
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION PROVIDES A REGISTERED ADMIN WITH AN ACCESS TOKEN
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+    
     public function login(Request $request)
     {
         $log_controller = new LogController();
@@ -100,9 +114,14 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * THIS FUNCTION REVOKES AN ADMIN'S ACCESS TOKEN
-     */
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION REVOKES AN ADMIN'S ACCESS TOKEN
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function logout(Request $request)
     {
         if (!Auth::guard('api')->check()) {
@@ -113,10 +132,14 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-     * THIS FUNCTION RESENDS THE PASSCODE USED FOR THE SECOND LAYER LOGIN VERIFICATION
-     */
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION RESENDS THE PASSCODE USED FOR THE SECOND LAYER LOGIN VERIFICATION
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function resend_passcode(Request $request)
     {
         $log_controller = new LogController();
@@ -150,9 +173,14 @@ class AdminController extends Controller
     }
 
 
-    /**
-     * THIS FUNCTION VERIFIES THE PASSCODE ENTERED
-     */
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION VERIFIES THE PASSCODE ENTERED
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function verify_passcode(Request $request)
     {
         $log_controller = new LogController();
@@ -192,9 +220,15 @@ class AdminController extends Controller
     }
 
 
-    /**
-     * THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
-     */
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function add_currency(Request $request)
     {
         $log_controller = new LogController();
@@ -254,10 +288,10 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
-        $currencies =  $currency_controller->get_all_currencies();  
+        $currencies =  $currency_controller->get_all_currencies();
 
         return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
-    } 
+    }
 
     public function get_one_currency(Request $request)
     {
@@ -270,10 +304,7 @@ class AdminController extends Controller
         }
 
         $request->validate([
-            "currency_full_name" => "bail|required|max:100",
-            "currency_abbreviation" => "bail|required|max:3",
-            "currency_symbol" => "bail|required|max:20",
-            "admin_pin" => "bail|required|min:4|max:8",
+            "currency_id" => "bail|required|integer",
         ]);
 
         if (auth()->user()->admin_flagged) {
@@ -282,14 +313,55 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
+        $this_currency = $currency_controller->get_one_currency("currency_id", $request->currency_id);
+        return response(["status" => "success", "message" => "Operation successful", "data" => $this_currency]);
+            
+    }
 
-        $currency = DB::table('currencies')->where('currency_id', '=', $d)->get();
+    /*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+    public function edit_currency(Request $request)
+    {
+        $log_controller = new LogController();
+        $currency_controller = new CurrencyController();
 
-        if (Currency::where('currency_abbreviation', '=', $request->currency_abbreviation)->exists()) {
-            return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
+        if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+
+        $request->validate([
+            "currency_id" => "bail|required|integer",
+            "currency_full_name" => "bail|required|max:100",
+            "currency_abbreviation" => "bail|required|max:3",
+            "currency_symbol" => "bail|required|max:20",
+            "currency_flagged" => "bail|required|integer|max:1",
+            "admin_pin" => "bail|required|min:4|max:8",
+        ]);
+
+        if (auth()->user()->admin_flagged) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because admin is flagged");
+            $request->user()->token()->revoke();
+            return response(["status" => "fail", "message" => "Account access restricted"]);
+        }
+
+        if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because of incorrect pin");
+            return response(["status" => "fail", "message" => "Incorrect pin."]);
+        }
+
+        if (Currency::where('currency_id', '=', $request->currency_id)->exists()) {
+            $currency_controller->update_currency($request->currency_id, $request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, $request->currency_flagged, auth()->user()->admin_id);
+            return response(["status" => "success", "message" => "Currency updated successfully"]);
         } else {
-            $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, auth()->user()->admin_id);
-            return response(["status" => "success", "message" => "Currency added successfully"]);
+            return response(["status" => "fail", "message" => "Currency does not exists."]);
         }
     }
+
+
 }
