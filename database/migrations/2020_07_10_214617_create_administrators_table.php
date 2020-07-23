@@ -22,6 +22,7 @@ class CreateAdministratorsTable extends Migration
             $table->string('admin_email', 255)->unique();
             $table->string('admin_pin', 255);
             $table->string('password', 255);
+            $table->text('admin_scope');
             $table->boolean('admin_flagged');
             $table->timestamps();
         });

@@ -33,6 +33,7 @@ class Administrator extends Authenticatable
         'admin_pin',
         'password',
         'admin_flagged',
+        'admin_scope',
         'created_at',
         'updated_at',
     ];

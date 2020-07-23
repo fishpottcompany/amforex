@@ -45,17 +45,17 @@ class AdminController extends Controller
             "admin_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
             "admin_email" => "bail|email|required|max:100",
             "admin_pin" => "bail|required|confirmed|min:4|max:8",
-            "password" => "bail|required|confirmed|min:8|max:30"
+            "password" => "bail|required|confirmed|min:8|max:30",
+            "admin_scope" => "bail|required"
         ]);
 
         $validatedData["admin_pin"] = Hash::make($request->admin_pin);
         $validatedData["password"] = bcrypt($request->password);
         $validatedData["admin_flagged"] = false;
 
-
         $administrator = Administrator::create($validatedData);
 
-        $accessToken = $administrator->createToken("authToken")->accessToken;
+        $accessToken = $administrator->createToken("authToken", [$validatedData["admin_scope"]])->accessToken;
 
         return response(["administrator" => $administrator, "access_token" => $accessToken]);
     }
@@ -90,7 +90,7 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
-        $accessToken = auth()->user()->createToken("authToken")->accessToken;
+        $accessToken = auth()->user()->createToken("authToken", [auth()->user()->admin_scope])->accessToken;
 
         $log_controller->save_log("administrator", $request->admin_phone_number, "Login Admin", "1st-layer login successful");
 
