@@ -40,5 +40,5 @@ class AuthServiceProvider extends ServiceProvider
         
     }
     
-    // add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate
+    //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate
 }
