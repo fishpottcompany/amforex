@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Models\v1\Rate;
 use App\Models\v1\Currency;
 use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
@@ -246,13 +247,13 @@ class AdminController extends Controller
         ]);
 
         if (auth()->user()->admin_flagged) {
-            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because admin is flagged");
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition of currency failed because admin is flagged");
             $request->user()->token()->revoke();
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
         if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
-            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because of incorrect pin");
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition of currency failed because of incorrect pin");
             return response(["status" => "fail", "message" => "Incorrect pin."]);
         }
 
@@ -260,6 +261,8 @@ class AdminController extends Controller
             return response(["status" => "fail", "message" => "Currency already exists. Try editing it instead"]);
         } else {
             $currency_controller->add_currency($request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, auth()->user()->admin_id);
+            $log_text = "New currency added. Name: " . $request->currency_full_name . ". SHORT-NAME: " . $request->currency_abbreviation;
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", $log_text);
             return response(["status" => "success", "message" => "Currency added successfully"]);
         }
     }
@@ -293,6 +296,15 @@ class AdminController extends Controller
         return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
     }
 
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS ONE CURRENCY
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
     public function get_one_currency(Request $request)
     {
 
@@ -308,12 +320,12 @@ class AdminController extends Controller
         ]);
 
         if (auth()->user()->admin_flagged) {
-            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Addition failed because admin is flagged");
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Getting one currency failed because admin is flagged");
             $request->user()->token()->revoke();
             return response(["status" => "fail", "message" => "Account access restricted"]);
         }
 
-        $this_currency = $currency_controller->get_one_currency("currency_id", $request->currency_id);
+        $this_currency = $currency_controller->get_currency("currency_id", $request->currency_id);
         return response(["status" => "success", "message" => "Operation successful", "data" => $this_currency]);
             
     }
@@ -356,12 +368,191 @@ class AdminController extends Controller
         }
 
         if (Currency::where('currency_id', '=', $request->currency_id)->exists()) {
+            $log_text = "Currency updated. Name: " . $request->currency_full_name . ". SHORT-NAME: " . $request->currency_abbreviation;
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", $log_text);
             $currency_controller->update_currency($request->currency_id, $request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, $request->currency_flagged, auth()->user()->admin_id);
             return response(["status" => "success", "message" => "Currency updated successfully"]);
         } else {
             return response(["status" => "fail", "message" => "Currency does not exists."]);
         }
     }
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION ADD A NEW RATE TO THE DATABASE
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function add_rate(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+    $rate_controller = new RateController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('add-rate')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to add rate");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "currency_from_id" => "bail|required|integer",
+        "currency_to_id" => "bail|required|integer",
+        "rate" => "bail|required|regex:/[\d]{1,2}.[\d]{2}/",
+        "admin_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of rate failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of rate failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $currency_from = $currency_controller->get_currency("currency_id", $request->currency_from_id);
+    $currency_to = $currency_controller->get_currency("currency_id", $request->currency_to_id);
+    
+    if($currency_from[0]->currency_abbreviation == "" || $currency_to[0]->currency_abbreviation == ""){
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of rate failed becauseone of the currencies were not found in the database");
+        return response(["status" => "fail", "message" => "Currency not found"]);
+    }
+
+    $old_rate = Rate::where('rate_ext_id', '=', $rate_controller->make_rate_ext_id($currency_from[0]->currency_abbreviation, $currency_to[0]->currency_abbreviation))->first();
+
+    if (isset($old_rate->rate_id)) {
+        $log_text = "Rate updated. RATE-ID" . $old_rate->rate_ext_id . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
+        $rate_controller->update_rate($old_rate->rate_id, $old_rate->rate_ext_id, $old_rate->currency_from_id, $old_rate->currency_to_id, $request->rate, auth()->user()->admin_id);
+        return response(["status" => "success", "message" => "Rate updated successfully"]);
+    } else {
+        $log_text = "New rate added. CURRENCY-FROM: " . $currency_from[0]->currency_abbreviation . ". CURRENCY-TO: " . $currency_to[0]->currency_abbreviation . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
+        $rate_controller->add_rate($currency_from[0]->currency_id, $currency_from[0]->currency_abbreviation, $currency_to[0]->currency_id, $currency_to[0]->currency_abbreviation, $request->rate, auth()->user()->admin_id);
+        return response(["status" => "success", "message" => "Rate added successfully"]);
+    }
+}
+
+///////////////////////////888888888888888888888888888888888888888888888888888888888888888888888
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE RATES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_rates(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+    $rate_controller = new RateController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Fetching all rates failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $currencies =  $currency_controller->get_all_currencies();
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS ONE CURRENCY
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_one_rate(Request $request)
+{
+
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "currency_id" => "bail|required|integer",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Getting one currency failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $this_currency = $currency_controller->get_currency("currency_id", $request->currency_id);
+    return response(["status" => "success", "message" => "Operation successful", "data" => $this_currency]);
+        
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function edit_rate(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "currency_id" => "bail|required|integer",
+        "currency_full_name" => "bail|required|max:100",
+        "currency_abbreviation" => "bail|required|max:3",
+        "currency_symbol" => "bail|required|max:20",
+        "currency_flagged" => "bail|required|integer|max:1",
+        "admin_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    if (Currency::where('currency_id', '=', $request->currency_id)->exists()) {
+        $currency_controller->update_currency($request->currency_id, $request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, $request->currency_flagged, auth()->user()->admin_id);
+        return response(["status" => "success", "message" => "Currency updated successfully"]);
+    } else {
+        return response(["status" => "fail", "message" => "Currency does not exists."]);
+    }
+}
+
 
 
 }

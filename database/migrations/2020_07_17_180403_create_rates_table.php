@@ -16,13 +16,14 @@ class CreateRatesTable extends Migration
     {
         Schema::create('rates', function (Blueprint $table) {
             $table->increments('rate_id');
+            $table->string('rate_ext_id', 255)->unique();
             $table->string('currency_from_id', 255);
             $table->string('currency_to_id', 255);
             $table->decimal('rate', 4, 2);
             $table->timestamps();
         });
 
-        Schema::table('workers', function (Blueprint $table) {
+        Schema::table('rates', function (Blueprint $table) {
             $table->unsignedBigInteger('admin_id');
             
             $table->foreign('admin_id')->references('admin_id')->on('administrators');

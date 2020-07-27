@@ -2,30 +2,46 @@ $(document).ready(function ()
 {
 /*
 |--------------------------------------------------------------------------
-| ADDING CURRENCY FUNCTION
+| ADDING RATE FUNCTION
 |--------------------------------------------------------------------------
-| WHEN THE ADD CURRENCY FORM SUBMIT BUTTON IS CLICKED
+| WHEN THE ADD RATE FORM SUBMIT BUTTON IS CLICKED
 |--------------------------------------------------------------------------
 |
 */
-   $("#acform").submit(function (e) 
+   $("#arform").submit(function (e) 
    { 
        e.preventDefault(); 
-       fade_in_loader_and_fade_out_form("loader", "acform");       
-       var form_data = $("#acform").serialize();
+       fade_in_loader_and_fade_out_form("loader", "arform");  
+       rate_input = document.getElementById("rate");
+
+       if( isNaN( parseFloat(rate_input.value))){
+        show_notification("msg_holder", "danger", "", 'Please ensure the rate you entered is a number');
+        fade_out_loader_and_fade_in_form("loader", "arform"); 
+        return;
+       }
+       rate_input.value = parseFloat(rate_input.value).toFixed(2);
+       var form_data = $("#arform").serialize();
+       fade_out_loader_and_fade_in_form("loader", "arform"); 
+    
+       if(document.getElementById("currency_from_id").value == document.getElementById("currency_to_id").value){
+            show_notification("msg_holder", "danger", "", 'The currency(from) and currency(to) cannot be the same');
+            fade_out_loader_and_fade_in_form("loader", "arform"); 
+            return;
+       }
+
        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-       send_restapi_request_to_server_from_form("post", admin_api_currencies_add_currency_url, bearer, form_data, "json", add_currency_success_response_function, add_currency_error_response_function);
+       send_restapi_request_to_server_from_form("post", admin_api_rates_add_rate_url, bearer, form_data, "json", add_rate_success_response_function, add_rate_error_response_function);
    });
    
 /*
 |--------------------------------------------------------------------------
-| ADDING CURRENCY FUNCTION
+| ADDING RATE FUNCTION
 |--------------------------------------------------------------------------
-| WHEN THE ADD CURRENCY FORM SUBMIT BUTTON IS CLICKED
+| WHEN THE ADD RATE FORM SUBMIT BUTTON IS CLICKED
 |--------------------------------------------------------------------------
 |
 */
-    $("#ecform").submit(function (e) 
+    $("#erform").submit(function (e) 
     { 
         e.preventDefault(); 
         fade_in_loader_and_fade_out_form("loader", "ecform");       
@@ -46,7 +62,7 @@ $(document).ready(function ()
 */
 
     
-    $(document).on('click', '.currency', function () {
+    $(document).on('click', '.rate', function () {
         show_log_in_console("url: " + (this).getAttribute("data-url"));
         redirect_to_next_page((this).getAttribute("data-url"), true);
     });
@@ -67,16 +83,16 @@ $(document).ready(function ()
 |--------------------------------------------------------------------------
 |
 */
-function add_currency_success_response_function(response)
+function add_rate_success_response_function(response)
 {
-    show_notification("msg_holder", "success", "Success:", "Currency added successfully");
-    fade_out_loader_and_fade_in_form("loader", "acform"); 
-    $('#acform')[0].reset();
+    show_notification("msg_holder", "success", "Success:", "Rate updated successfully");
+    fade_out_loader_and_fade_in_form("loader", "arform"); 
+    $('#arform')[0].reset();
 }
 
-function add_currency_error_response_function(errorThrown)
+function add_rate_error_response_function(errorThrown)
 {
-    fade_out_loader_and_fade_in_form("loader", "acform"); 
+    fade_out_loader_and_fade_in_form("loader", "arform"); 
     show_notification("msg_holder", "danger", "Error", errorThrown);
 }
 
@@ -88,14 +104,14 @@ function add_currency_error_response_function(errorThrown)
 |--------------------------------------------------------------------------
 |
 */
-function edit_currency_success_response_function(response)
+function edit_rate_success_response_function(response)
 {
     show_notification("msg_holder", "success", "Success:", "Currency updated successfully");
     fade_out_loader_and_fade_in_form("loader", "ecform"); 
-    $('#acform')[0].reset();
+    $('#arform')[0].reset();
 }
 
-function edit_currency_error_response_function(errorThrown)
+function edit_rate_error_response_function(errorThrown)
 {
     fade_out_loader_and_fade_in_form("loader", "ecform"); 
     show_notification("msg_holder", "danger", "Error", errorThrown);
@@ -113,19 +129,24 @@ function edit_currency_error_response_function(errorThrown)
 */
 function get_all_currencies_success_response_function(response)
 {
-    fade_out_loader_and_fade_in_form("loader", "list_table"); 
+    fade_out_loader_and_fade_in_form("loader", "arform"); 
     if(response.data.length > 0){
         for (let index = 0; index < response.data.length; index++) {
             const element = response.data[index];
-            url = host + "/admin/currencies/edit/" + element.currency_id;
+            url = host + "/admin/rates/edit/" + element.currency_id;
             if(element.currency_flagged == 0){tradable = "Yes";} else { tradable = "No"; }
-            $('#table_body_list').append(
-                '<tr style="cursor: pointer;" class="currency" data-url="' + url + '"><td>' + element.currency_id + '</td><td>' 
-                + element.currency_full_name + '</td><td>' + element.currency_abbreviation + '</td><td>' + element.currency_symbol 
-                + '</td><td>' + element.updated_at + '</td><td>' + tradable + '</td><td>' + element.admin_surname + " " + element.admin_firstname + '</td></tr>'
+            $('#currency_from_id').append(
+                '<option value="' + element.currency_id + '">' + element.currency_full_name + '</option>'
+               
+            );
+            $('#currency_to_id').append(
+                '<option value="' + element.currency_id + '">' + element.currency_full_name + '</option>'
             );
             
         }
+        $('#submit_button_add_rate_form').append(
+            '<button type="submit" class="btn btn-primary pull-right">Add</button>'
+        );
     } else {
         show_notification("msg_holder", "danger", "", "No currencies found");
     }
@@ -138,55 +159,9 @@ function get_all_currencies_error_response_function(errorThrown)
 
 function get_all_currencies()
 {
-    fade_in_loader_and_fade_out_form("loader", "list_table");   
+    fade_in_loader_and_fade_out_form("loader", "arform");   
     var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
     send_restapi_request_to_server_from_form("get", admin_api_currencies_get_currency_list_url, bearer, "", "json", get_all_currencies_success_response_function, get_all_currencies_error_response_function);
-}
-
-/*
-|--------------------------------------------------------------------------
-| GETTING THE CURRENCY BEING EDITED AND IT'S RESPONSE FUNCTIONS
-|--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
-|
-*/
-function get_this_currency_success_response_function(response)
-{
-    if(response.data.length > 0){
-            const element = response.data[0];
-            if(element.currency_flagged == 0){
-                $("#tradable_input_label").html("Tradable Status: Currently Set As TRADABLE");
-            } else { 
-                $("#tradable_input_label").html("Tradable Status: Currently Set As NOT-TRADABLE");
-             }
-
-            $("#currency_id").val(element.currency_id);
-            $("#currency_full_name").val(element.currency_full_name);
-            $("#currency_abbreviation").val(element.currency_abbreviation);
-            $("#currency_symbol").val(element.currency_symbol);
-            $("#currency_id").val(element.currency_id);
-            $('#submit_button_holder').html(
-               '<button type="submit" class="btn btn-primary pull-right">Edit</button>'
-            );
-            fade_out_loader_and_fade_in_form("loader", "ecform"); 
-    } else {
-        $('#loader').fadeOut();
-        show_notification("msg_holder", "danger", "", "Currency not found");
-    }
-}
-
-function get_this_currency_error_response_function(errorThrown)
-{
-    $('#loader').fadeOut();
-    show_notification("msg_holder", "danger", "Error", errorThrown);
-}
-
-function get_this_currency(currency_id)
-{
-    fade_in_loader_and_fade_out_form("loader", "ecform");   
-    var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-    url = admin_api_currencies_get_one_currency_url + currency_id;
-    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", get_this_currency_success_response_function, get_this_currency_error_response_function);
 }
 
 

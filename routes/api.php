@@ -40,5 +40,10 @@ Route::middleware(['auth:api', 'scope:get-one-currency'])->get('/v1/admin/curren
 
 Route::middleware(['auth:api', 'scope:update-currency'])->post('/v1/admin/currencies/edit', 'Api\v1\AdminController@edit_currency');
 
+Route::middleware(['auth:api', 'scope:add-rate'])->post('/v1/admin/rates/add', 'Api\v1\AdminController@add_rate');
+
+Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/rates/get_all_rates', 'Api\v1\AdminController@get_all_currencies');
+
+
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

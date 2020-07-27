@@ -37,20 +37,6 @@ Route::get('/admin/hold', function () {
     return view('admin/otp');
 });
 
-
-// RATES
-Route::get('/admin/rates/list', function () {
-    return view('admin/rates/list');
-});
-
-Route::get('/admin/rates/add', function () {
-    return view('admin/rates/add');
-});
-
-Route::get('/admin/rates/edit', function () {
-    return view('admin/rates/edit');
-});
-
 // CURRENCIES
 
 Route::get('/admin/currencies/list', function () {
@@ -63,6 +49,20 @@ Route::get('/admin/currencies/add', function () {
 
 Route::get('/admin/currencies/edit/{id}', function ($id) {
     return view('admin/currencies/edit', ['currency_id' => $id]);
+});
+
+
+// RATES
+Route::get('/admin/rates/list', function () {
+    return view('admin/rates/list');
+});
+
+Route::get('/admin/rates/add', function () {
+    return view('admin/rates/add');
+});
+
+Route::get('/admin/rates/edit', function () {
+    return view('admin/rates/edit');
 });
 
 
