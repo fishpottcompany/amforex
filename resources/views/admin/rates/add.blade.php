@@ -60,7 +60,7 @@ $page_name = "Rates";
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label class="bmd-label-floating">Rate (1 Currency[From] : Currency [To])</label>
+                              <label class="bmd-label-floating">Rate (Currency[From] : 1 Currency [To])</label>
                               <input type="text" id="rate" maxlength="5" name="rate" class="form-control" required="required">
                             </div>
                           </div>

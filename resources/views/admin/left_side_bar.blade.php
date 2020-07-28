@@ -22,7 +22,7 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">View Rates</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/add">Add Rate</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/add">Add/Update Rate</a>
             </div>
           </li>
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'bureaus'){ echo 'active'; } ?>">

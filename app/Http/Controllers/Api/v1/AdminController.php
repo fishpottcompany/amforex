@@ -469,9 +469,14 @@ public function get_all_rates(Request $request)
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
 
-    $currencies =  $currency_controller->get_all_currencies();
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
 
-    return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
+
+    $rates =  $rate_controller->get_all_rates(1);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $rates]);
 }
 
 

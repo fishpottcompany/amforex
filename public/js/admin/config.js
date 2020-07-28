@@ -30,6 +30,7 @@ var admin_api_currencies_edit_currency_url = `${host}/api/v1/admin/currencies/ed
 // RATES 
 var admin_web_dashboard_page_url = `${host}/admin/rates/list`;
 var admin_api_rates_add_rate_url = `${host}/api/v1/admin/rates/add`;
+var admin_api_rates_get_rate_list_url = `${host}/api/v1/admin/rates/list/?page=`;
 
 
 var show_logging_in_console = true;
