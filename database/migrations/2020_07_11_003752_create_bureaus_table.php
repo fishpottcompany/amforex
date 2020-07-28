@@ -26,7 +26,7 @@ class CreateBureausTable extends Migration
             $table->string('bureau_phone_2', 255);
             $table->string('bureau_email_1', 255);
             $table->string('bureau_email_2', 255);
-            $table->integer('bureau_flagged');
+            $table->boolean('bureau_flagged');
             $table->timestamps();
         });
         

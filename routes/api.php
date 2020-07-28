@@ -44,6 +44,8 @@ Route::middleware(['auth:api', 'scope:add-rate'])->post('/v1/admin/rates/add', '
 
 Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/rates/list', 'Api\v1\AdminController@get_all_rates');
 
+Route::middleware(['auth:api', 'scope:add-bureau'])->post('/v1/admin/bureaus/add', 'Api\v1\AdminController@add_bureau');
+
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

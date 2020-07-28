@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Models\v1\Rate;
+use App\Models\v1\Branch;
+use App\Models\v1\Bureau;
+use App\Models\v1\Worker;
 use App\Models\v1\Currency;
 use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
@@ -238,6 +241,11 @@ class AdminController extends Controller
         if (!Auth::guard('api')->check()) {
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
+    
+        if (!$request->user()->tokenCan('add-currency')) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to add currency");
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
 
         $request->validate([
             "currency_full_name" => "bail|required|max:100",
@@ -284,6 +292,11 @@ class AdminController extends Controller
         if (!Auth::guard('api')->check()) {
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
+    
+        if (!$request->user()->tokenCan('view-currencies')) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to view all currencies");
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
 
         if (auth()->user()->admin_flagged) {
             $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Fetching all currencies failed because admin is flagged");
@@ -312,6 +325,11 @@ class AdminController extends Controller
         $currency_controller = new CurrencyController();
 
         if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+    
+        if (!$request->user()->tokenCan('get-one-currency')) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to view one currency");
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
 
@@ -344,6 +362,11 @@ class AdminController extends Controller
         $currency_controller = new CurrencyController();
 
         if (!Auth::guard('api')->check()) {
+            return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+        }
+    
+        if (!$request->user()->tokenCan('update-currency')) {
+            $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to update currency");
             return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
         }
 
@@ -462,6 +485,11 @@ public function get_all_rates(Request $request)
     if (!Auth::guard('api')->check()) {
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
+    
+    if (!$request->user()->tokenCan('view-rates')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to view rates");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
 
     if (auth()->user()->admin_flagged) {
         $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Fetching all rates failed because admin is flagged");
@@ -479,85 +507,125 @@ public function get_all_rates(Request $request)
     return response(["status" => "success", "message" => "Operation successful", "data" => $rates]);
 }
 
-
 /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
-| THIS FUNCTION GETS ONE CURRENCY
+| THIS FUNCTION ADD A NEW BUREAU TO THE DATABASE
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
 */
-public function get_one_rate(Request $request)
+public function add_bureau(Request $request)
 {
-
     $log_controller = new LogController();
-    $currency_controller = new CurrencyController();
+    $bureau_controller = new BureauController();
+    $branch_controller = new BranchController();
+    $worker_controller = new WorkerController();
 
     if (!Auth::guard('api')->check()) {
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
-
-    $request->validate([
-        "currency_id" => "bail|required|integer",
-    ]);
-
-    if (auth()->user()->admin_flagged) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Getting one currency failed because admin is flagged");
-        $request->user()->token()->revoke();
-        return response(["status" => "fail", "message" => "Account access restricted"]);
-    }
-
-    $this_currency = $currency_controller->get_currency("currency_id", $request->currency_id);
-    return response(["status" => "success", "message" => "Operation successful", "data" => $this_currency]);
-        
-}
-
-/*
-|--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
-| THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
-|--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
-|
-*/
-public function edit_rate(Request $request)
-{
-    $log_controller = new LogController();
-    $currency_controller = new CurrencyController();
-
-    if (!Auth::guard('api')->check()) {
+    
+    if (!$request->user()->tokenCan('add-bureau')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to add bureau");
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
 
-    $request->validate([
-        "currency_id" => "bail|required|integer",
-        "currency_full_name" => "bail|required|max:100",
-        "currency_abbreviation" => "bail|required|max:3",
-        "currency_symbol" => "bail|required|max:20",
-        "currency_flagged" => "bail|required|integer|max:1",
-        "admin_pin" => "bail|required|min:4|max:8",
-    ]);
-
     if (auth()->user()->admin_flagged) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because admin is flagged");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of bureau failed because admin is flagged");
         $request->user()->token()->revoke();
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
 
     if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Currency editing failed because of incorrect pin");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of bureau failed because of incorrect pin");
         return response(["status" => "fail", "message" => "Incorrect pin."]);
     }
 
-    if (Currency::where('currency_id', '=', $request->currency_id)->exists()) {
-        $currency_controller->update_currency($request->currency_id, $request->currency_full_name, $request->currency_abbreviation, $request->currency_symbol, $request->currency_flagged, auth()->user()->admin_id);
-        return response(["status" => "success", "message" => "Currency updated successfully"]);
-    } else {
-        return response(["status" => "fail", "message" => "Currency does not exists."]);
-    }
-}
+    $validatedData = $request->validate([
+        "bureau_name" => "bail|required|max:200",
+        "bureau_hq_gps_address" => "bail|required|max:100",
+        "bureau_hq_location" => "bail|required|max:1000",
+        "bureau_tin" => "bail|required|max:20",
+        "bureau_license_no" => "bail|required|max:20",
+        "bureau_registration_num" => "bail|required|max:20",
+        "bureau_phone_1" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "bureau_phone_2" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "bureau_email_1" => "bail|email|required|max:100",
+        "bureau_email_2" => "bail|email|required|max:100",
+        "worker_surname" => "bail|required|max:55",
+        "worker_firstname" => "bail|required|max:55",
+        "worker_othernames" => "bail|max:55",
+        "worker_gps_address" => "bail|required|max:100",
+        "worker_location" => "bail|required|max:1000",
+        "worker_position" => "bail|required|max:100",
+        "worker_scope" => "bail|required",
+        "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "worker_email" => "bail|email|required|max:100",
+        "admin_pin" => "bail|required|min:4|max:8"
+    ]);
 
+    $validatedData["worker_pin"] = Hash::make(substr($request->bureau_tin,-4));
+    $validatedData["password"] = bcrypt($request->bureau_tin);
+    $validatedData["worker_flagged"] = false;
+    
+    $old_bureau = Bureau::where('bureau_tin', '=', $validatedData["bureau_tin"])->first();
+
+    if(isset($old_bureau->bureau_tin)){
+        $bureau = $bureau_controller->update_bureau($old_bureau->bureau_id, $validatedData["bureau_name"], $validatedData["bureau_hq_gps_address"],
+         $validatedData["bureau_hq_location"], $validatedData["bureau_tin"], $validatedData["bureau_license_no"], $validatedData["bureau_registration_num"],
+         $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], 
+         $validatedData["bureau_email_2"], false, auth()->user()->admin_id);
+    } else {
+        $bureau = $bureau_controller->save_bureau($validatedData["bureau_name"], $validatedData["bureau_hq_gps_address"],
+         $validatedData["bureau_hq_location"], $validatedData["bureau_tin"], $validatedData["bureau_license_no"], $validatedData["bureau_registration_num"],
+         $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], 
+         $validatedData["bureau_email_2"], false, auth()->user()->admin_id);
+    }
+    
+    $old_branch = Branch::where('branch_gps_location', '=', $validatedData["bureau_hq_gps_address"])->first();
+    
+    if(isset($old_branch->branch_id)){
+        $branch = $branch_controller->update_branch($old_branch->bureau_id, $validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
+        $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], $validatedData["bureau_email_2"], 
+        "admin", auth()->user()->admin_id, false, $bureau->bureau_id);
+    } else {
+        $branch = $branch_controller->save_branch($validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
+        $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], $validatedData["bureau_email_2"], 
+        "admin", auth()->user()->admin_id, false, $bureau->bureau_id);
+    }
+    
+    $old_worker = Worker::where('worker_phone_number', '=', $validatedData["worker_phone_number"])->first();
+    
+    if(isset($old_worker->worker_id)){
+        $worker_controller->update_worker($old_worker->worker_id, $validatedData["worker_surname"], $validatedData["worker_firstname"], $validatedData["worker_othernames"],
+        $validatedData["worker_gps_address"], $validatedData["worker_location"], $validatedData["worker_position"], $validatedData["worker_scope"], 
+        false, $validatedData["worker_phone_number"], $validatedData["worker_email"], $validatedData["worker_pin"], $validatedData["password"], 
+        "admin", auth()->user()->admin_id, $branch->branch_id, $bureau->bureau_id);
+    } else {
+        $worker_controller->save_worker($validatedData["worker_surname"], $validatedData["worker_firstname"], $validatedData["worker_othernames"],
+        $validatedData["worker_gps_address"], $validatedData["worker_location"], $validatedData["worker_position"], $validatedData["worker_scope"], 
+        false, $validatedData["worker_phone_number"], $validatedData["worker_email"], $validatedData["worker_pin"], $validatedData["password"], 
+        "admin", auth()->user()->admin_id, $branch->branch_id, $bureau->bureau_id);
+    }
+
+    return response(["status" => "success", "message" => "Bureau added/updated successfully"]);
+    
+        
+    /*
+    if (isset($old_rate->rate_id)) {
+        $log_text = "Rate updated. RATE-ID" . $old_rate->rate_ext_id . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
+        $rate_controller->update_rate($old_rate->rate_id, $old_rate->rate_ext_id, $old_rate->currency_from_id, $old_rate->currency_to_id, $request->rate, auth()->user()->admin_id);
+        return response(["status" => "success", "message" => "Rate updated successfully"]);
+    } else {
+        $log_text = "New rate added. CURRENCY-FROM: " . $currency_from[0]->currency_abbreviation . ". CURRENCY-TO: " . $currency_to[0]->currency_abbreviation . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
+        $rate_controller->add_rate($currency_from[0]->currency_id, $currency_from[0]->currency_abbreviation, $currency_to[0]->currency_id, $currency_to[0]->currency_abbreviation, $request->rate, auth()->user()->admin_id);
+        return response(["status" => "success", "message" => "Rate added successfully"]);
+    }
+    */
+}
 
 
 }

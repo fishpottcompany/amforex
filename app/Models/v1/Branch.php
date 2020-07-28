@@ -15,7 +15,7 @@ class Branch extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'bureau_id';
+    protected $primaryKey = 'branch_id';
 
     /**
      * The attributes that are mass assignable.
@@ -26,14 +26,14 @@ class Branch extends Model
         'branch_id', 
         'branch_gps_location', 
         'branch_address',  
+        'branch_phone_1',
+        'branch_phone_2',
+        'branch_email_1',
+        'branch_email_2',
         'branch_flagged',
-        'parent_bureau_id',
+        'creator_user_type',
         'creator_id',
-        'bureau_phone_1',
-        'bureau_phone_2',
-        'bureau_email_1',
-        'bureau_email_2',
-        'bureau_flagged',
+        'bureau_id',
         'created_at',
         'updated_at',
     ];

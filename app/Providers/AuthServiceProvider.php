@@ -36,9 +36,13 @@ class AuthServiceProvider extends ServiceProvider
             'view-rates' => 'View rates',
             'get-one-rate' => 'View one rate',
             'update-rate' => 'Update rate',
+            'add-bureau' => 'Add bureau',
+            'view-bureaus' => 'View bureaus',
+            'get-one-bureau' => 'View one bureau',
+            'update-bureau' => 'Update bureau',
         ]);
         
     }
     
-    //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate
+    //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate add-bureau view-bureaus get-one-bureau update-bureau
 }

@@ -35,6 +35,7 @@ class Bureau extends Model
         'bureau_email_1',
         'bureau_email_2',
         'bureau_flagged',
+        'admin_id',
         'created_at',
         'updated_at',
     ];

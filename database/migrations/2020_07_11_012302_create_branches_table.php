@@ -16,18 +16,22 @@ class CreateBranchesTable extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->bigIncrements('branch_id');
-            $table->string('branch_gps_location', 255)->nullable();
-            $table->string('branch_address', 255);
-            $table->integer('branch_flagged');
+            $table->string('branch_gps_location', 255)->unique();
+            $table->longText('branch_address');
+            $table->string('branch_phone_1', 255);
+            $table->string('branch_phone_2', 255);
+            $table->string('branch_email_1', 255);
+            $table->string('branch_email_2', 255);
+            $table->boolean('branch_flagged');
+            $table->string('creator_user_type', 255);
+            $table->unsignedBigInteger('creator_id');
             $table->timestamps();
         });
 
         Schema::table('branches', function (Blueprint $table) {
             $table->unsignedBigInteger('bureau_id');
-            $table->unsignedBigInteger('admin_id');
 
             $table->foreign('bureau_id')->references('bureau_id')->on('bureaus');
-            $table->foreign('admin_id')->references('admin_id')->on('administrators');
         });
     }
 

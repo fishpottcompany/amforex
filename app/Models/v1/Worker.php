@@ -16,7 +16,7 @@ class Worker extends Authenticatable
      *
      * @var string
      */
-    protected $primaryKey = 'admin_id';
+    protected $primaryKey = 'worker_id';
 
     /**
      * The attributes that are mass assignable.
@@ -24,14 +24,23 @@ class Worker extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'admin_id', 
-        'admin_surname', 
-        'admin_firstname', 
-        'admin_othernames', 
-        'admin_phone_number',
-        'admin_email',
-        'admin_pin',
+        'worker_id', 
+        'worker_surname', 
+        'worker_firstname', 
+        'worker_othernames', 
+        'worker_home_gps_address', 
+        'worker_home_location', 
+        'worker_position', 
+        'worker_scope', 
+        'worker_phone_number',
+        'worker_email',
+        'worker_pin',
         'password',
+        'worker_flagged',
+        'creator_user_type',
+        'creator_id',
+        'branch_id',
+        'bureau_id',
         'created_at',
         'updated_at',
     ];
@@ -42,7 +51,7 @@ class Worker extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'admin_pin', 'remember_token',
+        'worker_pin', 'remember_token',
         'password', 'remember_token',
     ];
 

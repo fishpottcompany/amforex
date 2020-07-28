@@ -21,12 +21,13 @@ class CreateWorkersTable extends Migration
             $table->string('worker_othernames', 255);
             $table->string('worker_home_gps_address', 255);
             $table->longText('worker_home_location');
-            $table->string('worker_role', 255);
-            $table->integer('worker_flagged');
+            $table->string('worker_position', 255);
+            $table->longText('worker_scope');
             $table->string('worker_phone_number', 255)->unique();
             $table->string('worker_email', 255)->unique();
             $table->string('worker_pin', 255);
             $table->string('password', 255);
+            $table->boolean('worker_flagged');
             $table->string('creator_user_type', 255);
             $table->unsignedBigInteger('creator_id');
             $table->timestamps();
