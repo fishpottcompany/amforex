@@ -31,6 +31,16 @@ $page_name = "Rates";
                       <p class="card-category">These are all the rates that are set on the system. To set a new rate for a list item, simply enter your pin and set the rate in the popup that shows</p>
                     </div>
                     <div class="card-body table-responsive">
+
+                    <form class="navbar-form" id="search_form">
+                      <div class="input-group no-border">
+                        <input type="text" id="search_form_input" value="" class="form-control" placeholder="Search...">
+                        <button type="submit" class="btn btn-default btn-round btn-just-icon">
+                          <i class="material-icons">search</i>
+                          <div class="ripple-container"></div>
+                        </button>
+                      </div>
+                    </form>
                       <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>

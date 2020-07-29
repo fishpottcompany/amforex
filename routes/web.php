@@ -66,6 +66,20 @@ Route::get('/admin/rates/edit', function () {
 });
 
 
+// BUREAUS
+Route::get('/admin/bureaus/list', function () {
+    return view('admin/bureaus/list');
+});
+
+Route::get('/admin/bureaus/add', function () {
+    return view('admin/bureaus/add');
+});
+
+Route::get('/admin/bureaus/edit', function () {
+    return view('admin/bureaus/edit');
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | BUREAU ROUTES  ---------- WEB  ---------- WEB  ---------- WEB

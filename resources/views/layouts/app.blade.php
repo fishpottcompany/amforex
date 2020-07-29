@@ -31,8 +31,8 @@
       
     <div class="main-panel">
       <div class="container">
-        <div class="row">
-          <div class="offset-md-5 col-md-6" id="msg_holder"></div>
+        <div class="row" >
+          <div class="offset-md-3 col-md-9 fixed-top" id="msg_holder"></div>
         </div>
       </div>
       <!-- START NAVBAR -->
