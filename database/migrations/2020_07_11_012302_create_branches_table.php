@@ -19,9 +19,10 @@ class CreateBranchesTable extends Migration
             $table->string('branch_gps_location', 255)->unique();
             $table->longText('branch_address');
             $table->string('branch_phone_1', 255);
-            $table->string('branch_phone_2', 255);
+            $table->string('branch_phone_2', 255)->nullable();
             $table->string('branch_email_1', 255);
-            $table->string('branch_email_2', 255);
+            $table->string('branch_email_2', 255)->nullable();
+            $table->boolean('branch_was_first');
             $table->boolean('branch_flagged');
             $table->string('creator_user_type', 255);
             $table->unsignedBigInteger('creator_id');

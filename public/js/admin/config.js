@@ -34,8 +34,10 @@ var admin_api_rates_add_rate_url = `${host}/api/v1/admin/rates/add`;
 var admin_api_rates_get_rate_list_url = `${host}/api/v1/admin/rates/list/?page=`;
 var admin_api_rates_search_for_rates_url = `${host}/api/v1/admin/rates/search/?kw=`;
 
+//BUREAUS
 
 var show_logging_in_console = true;
+var admin_api_rates_add_rate_url = `${host}/api/v1/admin/bureaus/add`;
 
 
 // LOGGING INFORMATION
@@ -106,11 +108,15 @@ function sign_me_out()
     send_restapi_request_to_server_from_form("get", admin_api_logout_url, bearer, "", "json", sign_out_success, sign_out_error);
 }
 
+function hide_notification(){
+    document.getElementById('msg_div').style.display = "none";
+}
+
 // SHOWING A NOTIFICATION ON THE SCREEN
 function show_notification(id, type, title, message)
 {
     $('#'+id).html(
-        '<div class="alert alert-' + type + ' alert-dismissible fade show my-1" role="alert"  style="z-index: 10000000;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>' + title +' </strong>'+ message +'</div>'
+        '<div id="msg_div" class="' + type + '"><b>' + title +'</b> '+ message +'<a id="close-bar" onclick="hide_notification();">×</a></div>'
     );
 }
 

@@ -1,6 +1,6 @@
 <?php
-$active_page = "currencies";
-$page_name = "Currencies";
+$active_page = "bureaus";
+$page_name = "Bureaus";
 ?>
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
@@ -27,8 +27,8 @@ $page_name = "Currencies";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Currencies</h4>
-                      <p class="card-category">These are all the currencies that are set on the system. Click any list item to edit it.</p>
+                      <h4 class="card-title">Bureaus</h4>
+                      <p class="card-category">These are all the licensed bureaus operating. Click any list item to edit it.</p>
                     </div>
                     <div class="card-body table-responsive">
 
@@ -48,14 +48,18 @@ $page_name = "Currencies";
                         </div>
                       </div>
 
-                      <table class="table table-hover" id="list_table" style="display: none;">
+                      <table class="table table-hover" id="list_table">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
                           <th class="font-weight-bold">Name</th>
-                          <th class="font-weight-bold">Short-Name</th>
-                          <th class="font-weight-bold">Symbol</th>
-                          <th class="font-weight-bold">Updated-On</th>
-                          <th class="font-weight-bold">Tradable</th>
+                          <th class="font-weight-bold">TIN</th>
+                          <th class="font-weight-bold">License</th>
+                          <th class="font-weight-bold">GPS-Address</th>
+                          <th class="font-weight-bold">Phone</th>
+                          <th class="font-weight-bold">Email</th>
+                          <th class="font-weight-bold">Prime-Worker</th>
+                          <th class="font-weight-bold">Phone</th>
+                          <th class="font-weight-bold">Branches</th>
                           <th class="font-weight-bold">Administrator</th>
                         </thead>
                         <tbody id="table_body_list">
@@ -112,10 +116,10 @@ $page_name = "Currencies";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-    <script src="/js/admin/currencies.js"></script>
+    <script src="/js/admin/bureaus.js"></script>
     
     <script type="text/javascript">
-      get_all_currencies();
+      get_all_bureaus();
     </script>
   </body>
   </html>

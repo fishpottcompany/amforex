@@ -37,6 +37,7 @@ class Worker extends Authenticatable
         'worker_pin',
         'password',
         'worker_flagged',
+        'worker_was_first',
         'creator_user_type',
         'creator_id',
         'branch_id',

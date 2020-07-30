@@ -23,6 +23,7 @@
 </head>
 
 <body class="dark-edition">
+  <span id="msg_holder"></span>
   <div class="wrapper ">
 
     <!-- START LEFT SIDE BAR -->
@@ -30,11 +31,6 @@
     <!-- END LEFT SIDE BAR  -->
       
     <div class="main-panel">
-      <div class="container">
-        <div class="row" >
-          <div class="offset-md-3 col-md-9 fixed-top" id="msg_holder"></div>
-        </div>
-      </div>
       <!-- START NAVBAR -->
       @yield('navbar')
       <!-- END NAVBAR -->

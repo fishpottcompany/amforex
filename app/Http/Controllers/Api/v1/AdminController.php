@@ -622,39 +622,38 @@ public function add_bureau(Request $request)
     }
     
     if (!$request->user()->tokenCan('add-bureau')) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to add bureau");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Permission denined for trying to add bureau");
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
 
     if (auth()->user()->admin_flagged) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of bureau failed because admin is flagged");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Addition of bureau failed because admin is flagged");
         $request->user()->token()->revoke();
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
 
     if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of bureau failed because of incorrect pin");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Addition of bureau failed because of incorrect pin");
         return response(["status" => "fail", "message" => "Incorrect pin."]);
     }
 
     $validatedData = $request->validate([
         "bureau_name" => "bail|required|max:200",
-        "bureau_hq_gps_address" => "bail|required|max:100",
-        "bureau_hq_location" => "bail|required|max:1000",
+        "bureau_hq_gps_address" => "bail|required|max:50",
+        "bureau_hq_location" => "bail|required|max:300",
         "bureau_tin" => "bail|required|max:20",
         "bureau_license_no" => "bail|required|max:20",
         "bureau_registration_num" => "bail|required|max:20",
         "bureau_phone_1" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
-        "bureau_phone_2" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "bureau_phone_2" => "bail|regex:/(0)[0-9]{9}/|min:10|max:10",
         "bureau_email_1" => "bail|email|required|max:100",
-        "bureau_email_2" => "bail|email|required|max:100",
+        "bureau_email_2" => "bail|email|max:100",
         "worker_surname" => "bail|required|max:55",
         "worker_firstname" => "bail|required|max:55",
         "worker_othernames" => "bail|max:55",
-        "worker_gps_address" => "bail|required|max:100",
-        "worker_location" => "bail|required|max:1000",
+        "worker_gps_address" => "bail|required|max:50",
+        "worker_location" => "bail|required|max:300",
         "worker_position" => "bail|required|max:100",
-        "worker_scope" => "bail|required",
         "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
         "worker_email" => "bail|email|required|max:100",
         "admin_pin" => "bail|required|min:4|max:8"
@@ -663,6 +662,7 @@ public function add_bureau(Request $request)
     $validatedData["worker_pin"] = Hash::make(substr($request->bureau_tin,-4));
     $validatedData["password"] = bcrypt($request->bureau_tin);
     $validatedData["worker_flagged"] = false;
+    $validatedData["worker_scope"] = "false";
     
     $old_bureau = Bureau::where('bureau_tin', '=', $validatedData["bureau_tin"])->first();
 
@@ -687,7 +687,7 @@ public function add_bureau(Request $request)
     } else {
         $branch = $branch_controller->save_branch($validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
         $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], $validatedData["bureau_email_2"], 
-        "admin", auth()->user()->admin_id, false, $bureau->bureau_id);
+        "admin", auth()->user()->admin_id, false, true, $bureau->bureau_id);
     }
     
     $old_worker = Worker::where('worker_phone_number', '=', $validatedData["worker_phone_number"])->first();
@@ -700,13 +700,60 @@ public function add_bureau(Request $request)
     } else {
         $worker_controller->save_worker($validatedData["worker_surname"], $validatedData["worker_firstname"], $validatedData["worker_othernames"],
         $validatedData["worker_gps_address"], $validatedData["worker_location"], $validatedData["worker_position"], $validatedData["worker_scope"], 
-        false, $validatedData["worker_phone_number"], $validatedData["worker_email"], $validatedData["worker_pin"], $validatedData["password"], 
+        false, true, $validatedData["worker_phone_number"], $validatedData["worker_email"], $validatedData["worker_pin"], $validatedData["password"], 
         "admin", auth()->user()->admin_id, $branch->branch_id, $bureau->bureau_id);
     }
 
     return response(["status" => "success", "message" => "Bureau added/updated successfully"]);
     
 }
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE RATES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_bureaus(Request $request)
+{
+    $log_controller = new LogController();
+    $bureau_controller = new BureauController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('view-bureaus')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Permission denined for trying to view rates");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Fetching all bureaus failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+
+    $bureaus =  $bureau_controller->get_all_bureaus(20);
+        
+    for ($i=0; $i < count($bureaus); $i++) { 
+
+        $this_branch = DB::table('branches')
+        ->where("bureau_id", "=", $bureaus[$i]->bureau_id)
+        ->count();
+        $bureaus[$i]->num_of_branches = $this_branch;
+    }
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $bureaus]);
+}
+
 
 
 }

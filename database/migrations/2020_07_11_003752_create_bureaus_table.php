@@ -23,9 +23,9 @@ class CreateBureausTable extends Migration
             $table->string('bureau_license_no', 255)->unique();
             $table->string('bureau_registration_num', 255)->unique();
             $table->string('bureau_phone_1', 255);
-            $table->string('bureau_phone_2', 255);
+            $table->string('bureau_phone_2', 255)->nullable();
             $table->string('bureau_email_1', 255);
-            $table->string('bureau_email_2', 255);
+            $table->string('bureau_email_2', 255)->nullable();
             $table->boolean('bureau_flagged');
             $table->timestamps();
         });

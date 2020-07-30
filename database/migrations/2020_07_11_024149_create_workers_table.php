@@ -18,7 +18,7 @@ class CreateWorkersTable extends Migration
             $table->increments('worker_id');
             $table->string('worker_surname', 255);
             $table->string('worker_firstname', 255);
-            $table->string('worker_othernames', 255);
+            $table->string('worker_othernames', 255)->nullable();
             $table->string('worker_home_gps_address', 255);
             $table->longText('worker_home_location');
             $table->string('worker_position', 255);
@@ -27,6 +27,7 @@ class CreateWorkersTable extends Migration
             $table->string('worker_email', 255)->unique();
             $table->string('worker_pin', 255);
             $table->string('password', 255);
+            $table->boolean('worker_was_first');
             $table->boolean('worker_flagged');
             $table->string('creator_user_type', 255);
             $table->unsignedBigInteger('creator_id');

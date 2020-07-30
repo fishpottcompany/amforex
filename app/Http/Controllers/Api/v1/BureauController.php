@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
 use App\Models\v1\Bureau;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class BureauController extends Controller
 {
@@ -45,5 +46,20 @@ class BureauController extends Controller
         $bureau->admin_id = $admin_id;
         $bureau->save();
         return $bureau;
+    }
+
+
+    public function get_all_bureaus($pagination)
+    {
+        
+        $current_bureaus = DB::table('bureaus')
+        ->join('administrators', 'bureaus.admin_id', '=', 'administrators.admin_id')
+        ->join('workers', 'bureaus.bureau_id', '=', 'workers.bureau_id')
+        ->select('bureaus.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'workers.worker_surname', 'workers.worker_firstname', 'workers.worker_phone_number')
+        ->where("workers.worker_was_first", "=", true)
+        ->simplePaginate($pagination);
+
+        return $current_bureaus;
+        
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class BranchController extends Controller
 {
-    public function save_branch($branch_gps_location, $branch_address, $branch_phone_1, $branch_phone_2, $branch_email_1, $branch_email_2, $creator_user_type, $creator_id, $branch_flagged, $bureau_id)
+    public function save_branch($branch_gps_location, $branch_address, $branch_phone_1, $branch_phone_2, $branch_email_1, $branch_email_2, $creator_user_type, $creator_id, $branch_flagged,  $branch_was_first, $bureau_id)
     {
         $branch = new Branch();
         $branch->branch_gps_location = $branch_gps_location; 
@@ -17,6 +17,7 @@ class BranchController extends Controller
         $branch->branch_phone_2 = $branch_phone_2;
         $branch->branch_email_1 = $branch_email_1;
         $branch->branch_email_2 = $branch_email_2;
+        $branch->branch_was_first = $branch_was_first;
         $branch->branch_flagged = $branch_flagged;
         $branch->creator_user_type = $creator_user_type;
         $branch->creator_id = $creator_id;

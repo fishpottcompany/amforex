@@ -30,6 +30,7 @@ class Branch extends Model
         'branch_phone_2',
         'branch_email_1',
         'branch_email_2',
+        'branch_was_first',
         'branch_flagged',
         'creator_user_type',
         'creator_id',
