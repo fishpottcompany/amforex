@@ -64,7 +64,7 @@ $page_name = "Rates";
                 </div>
               </div>
               <div class="row">
-                <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4">
+                <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4" id="pagination_buttons">
                   <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/admin/rates/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
                   <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/admin/rates/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
                 </div>

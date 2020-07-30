@@ -34,6 +34,20 @@ class CurrencyController extends Controller
         return  DB::table('currencies')->where($column_name, '=', $column_value)->get();
     }
 
+    public function search_for_currencies($where_array, $or_where_array)
+    {
+        if(count($or_where_array) > 0){
+            return  DB::table('currencies')
+            ->join('administrators', 'currencies.admin_id', '=', 'administrators.admin_id')
+            ->select('currencies.*', 'administrators.admin_surname', 'administrators.admin_firstname')
+            ->where($where_array)->orWhere($or_where_array)->get();
+        }
+        return  DB::table('currencies')
+        ->join('administrators', 'currencies.admin_id', '=', 'administrators.admin_id')
+        ->select('currencies.*', 'administrators.admin_surname', 'administrators.admin_firstname')
+        ->where($where_array)->get();
+    }
+
 
     public function update_currency($currency_id, $currency_full_name, $currency_abbreviation, $currency_symbol, $currency_flagged, $user_id)
     {

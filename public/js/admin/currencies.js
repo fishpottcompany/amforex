@@ -35,6 +35,25 @@ $(document).ready(function ()
     });
 
 
+/*
+|--------------------------------------------------------------------------
+| SEARCHING FOR CURRENCIES FUNCTION
+|--------------------------------------------------------------------------
+| WHEN THE SEARCH CURRENCY FORM SUBMIT BUTTON IS CLICKED
+|--------------------------------------------------------------------------
+|
+*/
+    $("#search_form").submit(function (e) 
+    { 
+        e.preventDefault(); 
+        fade_in_loader_and_fade_out_form("loader", "search_form");     
+        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
+        var url = admin_api_currencies_search_for_currencies_url + document.getElementById("search_form_input").value;
+        show_log_in_console("url: " + url);
+        send_restapi_request_to_server_from_form("get", url, bearer, "", "json", search_for_currencies_success_response_function, search_for_currencies_error_response_function);
+    });
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -44,8 +63,6 @@ $(document).ready(function ()
 |--------------------------------------------------------------------------
 |
 */
-
-    
     $(document).on('click', '.currency', function () {
         show_log_in_console("url: " + (this).getAttribute("data-url"));
         redirect_to_next_page((this).getAttribute("data-url"), true);
@@ -101,7 +118,39 @@ function edit_currency_error_response_function(errorThrown)
     show_notification("msg_holder", "danger", "Error", errorThrown);
 }
 
+/*
+|--------------------------------------------------------------------------
+| GETTING THE LIST OF ALL CURRENCIES RESPONSE FUNCTIONS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+function search_for_currencies_success_response_function(response)
+{
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+    if(response.data.length > 0){
+        document.getElementById("table_body_list").innerHTML = "";
+        for (let index = 0; index < response.data.length; index++) {
+            const element = response.data[index];
+            url = host + "/admin/currencies/edit/" + element.currency_id;
+            if(element.currency_flagged == 0){tradable = "Yes";} else { tradable = "No"; }
+            $('#table_body_list').append(
+                '<tr style="cursor: pointer;" class="currency" data-url="' + url + '"><td>' + element.currency_id + '</td><td>' 
+                + element.currency_full_name + '</td><td>' + element.currency_abbreviation + '</td><td>' + element.currency_symbol 
+                + '</td><td>' + element.updated_at + '</td><td>' + tradable + '</td><td>' + element.admin_surname + " " + element.admin_firstname + '</td></tr>'
+            );
+            
+        }
+    } else {
+        show_notification("msg_holder", "danger", "", "No currencies found");
+    }
+}
 
+function search_for_currencies_error_response_function(errorThrown)
+{
+    show_notification("msg_holder", "danger", "Error", errorThrown);
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+}
 
 
 /*
@@ -115,6 +164,7 @@ function get_all_currencies_success_response_function(response)
 {
     fade_out_loader_and_fade_in_form("loader", "list_table"); 
     if(response.data.length > 0){
+        document.getElementById("table_body_list").innerHTML = "";
         for (let index = 0; index < response.data.length; index++) {
             const element = response.data[index];
             url = host + "/admin/currencies/edit/" + element.currency_id;

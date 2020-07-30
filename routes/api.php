@@ -38,11 +38,15 @@ Route::middleware(['auth:api', 'scope:view-currencies'])->get('/v1/admin/currenc
 
 Route::middleware(['auth:api', 'scope:get-one-currency'])->get('/v1/admin/currencies/get', 'Api\v1\AdminController@get_one_currency');
 
+Route::middleware(['auth:api', 'scope:view-currencies'])->get('/v1/admin/currencies/search', 'Api\v1\AdminController@search_for_currency');
+
 Route::middleware(['auth:api', 'scope:update-currency'])->post('/v1/admin/currencies/edit', 'Api\v1\AdminController@edit_currency');
 
 Route::middleware(['auth:api', 'scope:add-rate'])->post('/v1/admin/rates/add', 'Api\v1\AdminController@add_rate');
 
 Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/rates/list', 'Api\v1\AdminController@get_all_rates');
+
+Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/rates/search', 'Api\v1\AdminController@search_for_rates');
 
 Route::middleware(['auth:api', 'scope:add-bureau'])->post('/v1/admin/bureaus/add', 'Api\v1\AdminController@add_bureau');
 

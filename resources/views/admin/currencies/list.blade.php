@@ -34,7 +34,7 @@ $page_name = "Currencies";
 
                     <form class="navbar-form" id="search_form">
                       <div class="input-group no-border">
-                        <input type="text" id="search_form_input" value="" class="form-control" placeholder="Search...">
+                        <input type="text" id="search_form_input" required="required" class="form-control" placeholder="Search...">
                         <button type="submit" class="btn btn-default btn-round btn-just-icon">
                           <i class="material-icons">search</i>
                           <div class="ripple-container"></div>

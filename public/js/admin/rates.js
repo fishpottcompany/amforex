@@ -32,6 +32,23 @@ $(document).ready(function ()
        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
        send_restapi_request_to_server_from_form("post", admin_api_rates_add_rate_url, bearer, form_data, "json", add_rate_success_response_function, add_rate_error_response_function);
    });
+
+
+/*
+|--------------------------------------------------------------------------
+| SEARCHING FOR RATES FUNCTION
+|--------------------------------------------------------------------------
+| WHEN THE SEARCH RATES FORM SUBMIT BUTTON IS CLICKED
+|--------------------------------------------------------------------------
+|
+*/
+$("#search_form").submit(function (e) 
+{ 
+    e.preventDefault(); 
+    search_for_rates(0);
+});
+
+
    
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +77,7 @@ $(document).ready(function ()
 /******************************************************************************************************************************************** */
 /*
 |--------------------------------------------------------------------------
-| ADDING CURRENCY RESPONSE FUNCTIONS
+| ADDING RATE RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 | Here is where I add a currency
 |--------------------------------------------------------------------------
@@ -81,7 +98,7 @@ function add_rate_error_response_function(errorThrown)
 
 /*
 |--------------------------------------------------------------------------
-| EDITING/UPDATING CURRENCY RESPONSE FUNCTIONS
+| EDITING/UPDATING RATE RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 | Here is where I add a currency
 |--------------------------------------------------------------------------
@@ -100,9 +117,91 @@ function edit_rate_error_response_function(errorThrown)
     show_notification("msg_holder", "danger", "Error", errorThrown);
 }
 
+
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF ALL CURRENCIES RESPONSE FUNCTIONS
+| SEARCHING FOR RATES RESPONSE FUNCTIONS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+function search_for_rates_success_response_function(response)
+{
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+    if(response.data.data.length > 0){
+        show_log_in_console("response.data.prev_page_url : " + response.data.prev_page_url);
+        show_log_in_console("response.data.next_page_url : " + response.data.next_page_url);
+        if(response.data.prev_page_url != null){
+            $('#pagination_buttons').append(
+                '<a id="previous_btn" class="btn btn-default" data-link = "' + response.data.prev_page_url + '&kw=' + response.kw + '" onclick="search_for_rates(1)"><i class="material-icons">keyboard_arrow_left</i></a>'
+            );
+        }
+        if(response.data.next_page_url != null){
+            $('#pagination_buttons').append(
+                '<a id="next_btn" class="btn btn-default" data-link = "' + response.data.next_page_url + '&kw=' + response.kw + '" onclick="search_for_rates(2)"><i class="material-icons">keyboard_arrow_right</i></a>'
+            );
+        }
+        
+        for (let index = 0; index < response.data.data.length; index++) {
+            const element = response.data.data[index];
+            $('#table_body_list').append(
+                '<tr style="cursor: pointer;" class="rate"><td>' + element.rate_id + '</td><td>' 
+                + element.currency_full_name + '</td><td>' + element.currency_to_full_name + '</td><td>' + element.rate 
+                + ' : 1</td><td>' + element.updated_at + '</td><td>' + element.admin_surname + " " + element.admin_firstname + '</td>'
+                + '<td>'
+                + '<div  id="holder_' + element.rate_id + '" class="input-group">'
+                + '<input id="input_pin_' + element.rate_id + '" type="password" class="form-control" placeholder="Pin" aria-label="Pin">'
+                + '<i style="cursor:pointer;" data-currency_from_id="' + element.currency_from_id + '" data-currency_to_id="' + element.currency_to_id 
+                + '" data-rateid="' + element.rate_id + '" onclick="update_rate(this)" class="material-icons">keyboard_arrow_right</i>'
+                + '</div>'
+                + '<div  style="display:none;" id="loader_new_rate_' + element.rate_id + '"  class="customloader"></div>'
+                + '</td>'
+                + '</tr>'
+            );
+            
+        }
+    } else {
+        show_notification("msg_holder", "danger", "", "No rates found");
+    }
+}
+
+
+function search_for_rates_error_response_function(errorThrown)
+{
+    show_notification("msg_holder", "danger", "Error", errorThrown);
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEARCHING FOR RATES FUNCTION
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+function search_for_rates(url_fetch_type)
+{
+    if(url_fetch_type == 1){
+        var url = document.getElementById("previous_btn").getAttribute("data-link");
+    } else if(url_fetch_type == 2){
+        var url = document.getElementById("next_btn").getAttribute("data-link");
+    } else {
+        var url = admin_api_rates_search_for_rates_url + document.getElementById("search_form_input").value;
+    }
+    fade_in_loader_and_fade_out_form("loader", "search_form");     
+    var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
+    document.getElementById("table_body_list").innerHTML = "";
+    document.getElementById("pagination_buttons").innerHTML = "";
+    show_log_in_console("url: " + url);
+    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", search_for_rates_success_response_function, search_for_rates_error_response_function);
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GETTING THE LIST OF ALL RATES RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |

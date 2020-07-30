@@ -26,11 +26,13 @@ var admin_api_currencies_get_currency_list_url = `${host}/api/v1/admin/currencie
 var admin_web_currencies_edit_page_url = `${host}/admin/currencies/edit`;
 var admin_api_currencies_get_one_currency_url = `${host}/api/v1/admin/currencies/get/?currency_id=`;
 var admin_api_currencies_edit_currency_url = `${host}/api/v1/admin/currencies/edit`;
+var admin_api_currencies_search_for_currencies_url = `${host}/api/v1/admin/currencies/search/?kw=`;
 
 // RATES 
 var admin_web_dashboard_page_url = `${host}/admin/rates/list`;
 var admin_api_rates_add_rate_url = `${host}/api/v1/admin/rates/add`;
 var admin_api_rates_get_rate_list_url = `${host}/api/v1/admin/rates/list/?page=`;
+var admin_api_rates_search_for_rates_url = `${host}/api/v1/admin/rates/search/?kw=`;
 
 
 var show_logging_in_console = true;

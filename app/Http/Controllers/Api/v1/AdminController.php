@@ -351,6 +351,54 @@ class AdminController extends Controller
     /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
+| THIS FUNCTION SEARCHES FOR CURRENCIES USING A KEYWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_currency(Request $request)
+{
+
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('get-one-currency')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to search for currencies");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "kw" => "bail|required",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Currencies Admin", "Searching for currencies failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $like_keyword = '%' . $request->kw . '%';
+
+    $where_array = array(
+        ['currency_full_name', 'LIKE', $like_keyword],
+    ); 
+    $orwhere_array = array(
+        ['currency_abbreviation', 'LIKE', $like_keyword],
+    ); 
+
+    $currencies = $currency_controller->search_for_currencies($where_array, $orwhere_array);
+    return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
+        
+}
+
+
+    /*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
 | THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
@@ -479,7 +527,6 @@ public function add_rate(Request $request)
 public function get_all_rates(Request $request)
 {
     $log_controller = new LogController();
-    $currency_controller = new CurrencyController();
     $rate_controller = new RateController();
 
     if (!Auth::guard('api')->check()) {
@@ -502,10 +549,58 @@ public function get_all_rates(Request $request)
     ]);
 
 
-    $rates =  $rate_controller->get_all_rates(1);
+    $rates =  $rate_controller->get_all_rates(20);
 
     return response(["status" => "success", "message" => "Operation successful", "data" => $rates]);
 }
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION SEARCHES FOR RATES USING A KEYWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_rates(Request $request)
+{
+    $log_controller = new LogController();
+    $rate_controller = new RateController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('view-rates')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Permission denined for trying to view rates");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Fetching all rates failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "kw" => "bail|required",
+    ]);
+
+    $like_keyword = '%' . $request->kw . '%';
+
+    $where_array = array(
+        ['currencies.currency_full_name', 'LIKE', $like_keyword],
+    ); 
+    $orwhere_array = array(
+        ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
+    ); 
+
+    $rates = $rate_controller->search_for_rates(1, $where_array, $orwhere_array);
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $rates, "kw" => $request->kw]);
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -611,20 +706,6 @@ public function add_bureau(Request $request)
 
     return response(["status" => "success", "message" => "Bureau added/updated successfully"]);
     
-        
-    /*
-    if (isset($old_rate->rate_id)) {
-        $log_text = "Rate updated. RATE-ID" . $old_rate->rate_ext_id . ". RATE: 1: " . $request->rate;
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
-        $rate_controller->update_rate($old_rate->rate_id, $old_rate->rate_ext_id, $old_rate->currency_from_id, $old_rate->currency_to_id, $request->rate, auth()->user()->admin_id);
-        return response(["status" => "success", "message" => "Rate updated successfully"]);
-    } else {
-        $log_text = "New rate added. CURRENCY-FROM: " . $currency_from[0]->currency_abbreviation . ". CURRENCY-TO: " . $currency_to[0]->currency_abbreviation . ". RATE: 1: " . $request->rate;
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", $log_text);
-        $rate_controller->add_rate($currency_from[0]->currency_id, $currency_from[0]->currency_abbreviation, $currency_to[0]->currency_id, $currency_to[0]->currency_abbreviation, $request->rate, auth()->user()->admin_id);
-        return response(["status" => "success", "message" => "Rate added successfully"]);
-    }
-    */
 }
 
 

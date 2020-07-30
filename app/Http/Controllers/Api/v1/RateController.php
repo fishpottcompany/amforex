@@ -36,7 +36,7 @@ class RateController extends Controller
             ->join('administrators', 'rates.admin_id', '=', 'administrators.admin_id')
             ->join('currencies', 'rates.currency_from_id', '=', 'currencies.currency_id')
             ->select('rates.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'currencies.currency_full_name')
-            ->simplePaginate(20);
+            ->simplePaginate($pagination);
 
         
         for ($i=0; $i < count($current_rates); $i++) { 
@@ -47,6 +47,43 @@ class RateController extends Controller
         return $current_rates;
         
     }
+
+    public function search_for_currencies()
+    {
+    }
+
+    public function search_for_rates($pagination, $where_array, $or_where_array)
+    {
+        
+        if(count($or_where_array) > 0){
+            $current_rates = DB::table('rates')
+                ->join('administrators', 'rates.admin_id', '=', 'administrators.admin_id')
+                ->join('currencies', 'rates.currency_from_id', '=', 'currencies.currency_id')
+                ->select('rates.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'currencies.currency_full_name')
+                ->where($where_array)
+                ->orWhere($or_where_array)
+                ->simplePaginate($pagination);
+    
+        } else {
+            $current_rates = DB::table('rates')
+            ->join('administrators', 'rates.admin_id', '=', 'administrators.admin_id')
+            ->join('currencies', 'rates.currency_from_id', '=', 'currencies.currency_id')
+            ->select('rates.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'currencies.currency_full_name')
+            ->where($where_array)
+            ->simplePaginate($pagination);
+
+        }
+
+        
+        for ($i=0; $i < count($current_rates); $i++) { 
+            $this_currency = Currency::find($current_rates[$i]->currency_to_id);
+            $current_rates[$i]->currency_to_full_name = $this_currency->currency_full_name;
+        }
+
+        return $current_rates;
+        
+    }
+
 
     public function update_rate($rate_id, $rate_ext_id, $currency_from_id, $currency_to_id, $this_rate, $admin_id)
     {
