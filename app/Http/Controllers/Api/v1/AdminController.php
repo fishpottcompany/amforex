@@ -549,7 +549,7 @@ public function get_all_rates(Request $request)
     ]);
 
 
-    $rates =  $rate_controller->get_all_rates(20);
+    $rates =  $rate_controller->get_all_rates(50);
 
     return response(["status" => "success", "message" => "Operation successful", "data" => $rates]);
 }
@@ -596,7 +596,7 @@ public function search_for_rates(Request $request)
         ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
     ); 
 
-    $rates = $rate_controller->search_for_rates(1, $where_array, $orwhere_array);
+    $rates = $rate_controller->search_for_rates(50, $where_array, $orwhere_array);
     
     return response(["status" => "success", "message" => "Operation successful", "data" => $rates, "kw" => $request->kw]);
 }
@@ -711,7 +711,7 @@ public function add_bureau(Request $request)
 /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
-| THIS FUNCTION GETS THE LIST OF ALL THE RATES
+| THIS FUNCTION GETS THE LIST OF ALL THE BUREAUS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -741,7 +741,7 @@ public function get_all_bureaus(Request $request)
     ]);
 
 
-    $bureaus =  $bureau_controller->get_all_bureaus(20);
+    $bureaus =  $bureau_controller->get_all_bureaus(50);
         
     for ($i=0; $i < count($bureaus); $i++) { 
 
@@ -753,6 +753,60 @@ public function get_all_bureaus(Request $request)
 
     return response(["status" => "success", "message" => "Operation successful", "data" => $bureaus]);
 }
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS SEARCHES FOR A LIST OF BUREAUS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_bureaus(Request $request)
+{
+    $log_controller = new LogController();
+    $bureau_controller = new BureauController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('view-bureaus')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Permission denined for trying to search for bureaus");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Searching for bureaus failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+
+    $request->validate([
+        "kw" => "bail|required",
+    ]);
+
+    $like_keyword = '%' . $request->kw . '%';
+
+    $where_array = array(
+        ['workers.worker_was_first', '=', true],
+        ['bureaus.bureau_name', 'LIKE', $like_keyword],
+    ); 
+
+    $bureaus = $bureau_controller->search_for_bureaus(1, $where_array, []);
+
+    for ($i=0; $i < count($bureaus); $i++) { 
+
+        $this_branch = DB::table('branches')
+        ->where("bureau_id", "=", $bureaus[$i]->bureau_id)
+        ->count();
+        $bureaus[$i]->num_of_branches = $this_branch;
+    }
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $bureaus, "kw" => $request->kw]);
+}
+
 
 
 

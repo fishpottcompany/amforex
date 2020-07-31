@@ -1,15 +1,15 @@
-<?php
-$active_page = "bureaus";
-$page_name = "Bureaus";
-?>
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
+<?php
+$active_page = "rates";
+$page_name = "Rates";
+?>
 @extends('layouts.app')
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
 <script src="/js/admin/config.js"></script>
 <script src="/js/admin/check_auth.js"></script>
-@endsection
+@endsection()
 
 @section('navbar')
   @include('admin.navbar')
@@ -41,14 +41,12 @@ $page_name = "Bureaus";
                         </button>
                       </div>
                     </form>
-
                       <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
                       </div>
-
-                      <table class="table table-hover" id="list_table">
+                      <table class="table table-hover" id="list_table" style="display: none;">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
                           <th class="font-weight-bold">Name</th>
@@ -67,6 +65,12 @@ $page_name = "Bureaus";
                       </table>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4" id="pagination_buttons">
+                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/admin/bureaus/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
+                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/admin/bureaus/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
                 </div>
               </div>
             </div>
@@ -117,10 +121,10 @@ $page_name = "Bureaus";
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
     <script src="/js/admin/bureaus.js"></script>
-    
     <script type="text/javascript">
-      get_all_bureaus();
+      get_bureaus_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
     </script>
+  </body>
   </body>
   </html>
 @endsection

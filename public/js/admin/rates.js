@@ -206,6 +206,7 @@ function search_for_rates(url_fetch_type)
 |--------------------------------------------------------------------------
 |
 */
+/*
 function get_all_currencies_success_response_function(response)
 {
     fade_out_loader_and_fade_in_form("loader", "arform"); 
@@ -243,6 +244,7 @@ function get_all_currencies()
     var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
     send_restapi_request_to_server_from_form("get", admin_api_currencies_get_currency_list_url, bearer, "", "json", get_all_currencies_success_response_function, get_all_currencies_error_response_function);
 }
+*/
 
 
 

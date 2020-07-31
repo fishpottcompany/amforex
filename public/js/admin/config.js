@@ -3,7 +3,8 @@
     
                 URLS
 
-****************************host************/
+****************************************/
+
 var host = "http://amforex";
 
 // LOGIN PAGE URLS
@@ -37,7 +38,9 @@ var admin_api_rates_search_for_rates_url = `${host}/api/v1/admin/rates/search/?k
 //BUREAUS
 
 var show_logging_in_console = true;
-var admin_api_rates_add_rate_url = `${host}/api/v1/admin/bureaus/add`;
+var admin_api_bureaus_add_bureau_url = `${host}/api/v1/admin/bureaus/add`;
+var admin_api_bureaus_get_bureaus_list_url = `${host}/api/v1/admin/bureaus/list/?page=`;
+var admin_api_bureaus_search_for_bureaus_url = `${host}/api/v1/admin/bureaus/search/?kw=`;
 
 
 // LOGGING INFORMATION

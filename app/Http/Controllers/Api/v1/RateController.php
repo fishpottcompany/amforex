@@ -48,10 +48,6 @@ class RateController extends Controller
         
     }
 
-    public function search_for_currencies()
-    {
-    }
-
     public function search_for_rates($pagination, $where_array, $or_where_array)
     {
         

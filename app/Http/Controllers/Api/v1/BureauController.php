@@ -62,4 +62,30 @@ class BureauController extends Controller
         return $current_bureaus;
         
     }
+
+
+    public function search_for_bureaus($pagination, $where_array, $or_where_array)
+    {
+        
+        if(count($or_where_array) > 0){
+            return DB::table('bureaus')
+                ->join('administrators', 'bureaus.admin_id', '=', 'administrators.admin_id')
+                ->join('workers', 'bureaus.bureau_id', '=', 'workers.bureau_id')
+                ->select('bureaus.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'workers.worker_surname', 'workers.worker_firstname', 'workers.worker_phone_number')
+                ->where($where_array)
+                ->orWhere($or_where_array)
+                ->simplePaginate($pagination);
+    
+        } else {
+            return DB::table('bureaus')
+            ->join('administrators', 'bureaus.admin_id', '=', 'administrators.admin_id')
+            ->join('workers', 'bureaus.bureau_id', '=', 'workers.bureau_id')
+            ->select('bureaus.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'workers.worker_surname', 'workers.worker_firstname', 'workers.worker_phone_number')
+            ->where($where_array)
+            ->simplePaginate($pagination);
+
+        }
+        
+    }
+
 }

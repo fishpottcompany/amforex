@@ -52,6 +52,8 @@ Route::middleware(['auth:api', 'scope:add-bureau'])->post('/v1/admin/bureaus/add
 
 Route::middleware(['auth:api', 'scope:view-bureaus'])->get('/v1/admin/bureaus/list', 'Api\v1\AdminController@get_all_bureaus');
 
+Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/bureaus/search', 'Api\v1\AdminController@search_for_bureaus');
+
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 
