@@ -1,7 +1,7 @@
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
-$active_page = "rates";
-$page_name = "Rates";
+$active_page = "bureaus";
+$page_name = "Bureaus";
 ?>
 @extends('layouts.app')
 

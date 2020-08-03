@@ -88,4 +88,32 @@ class BureauController extends Controller
         
     }
 
+
+    public function get_bureau($or_where_array, $where_array)
+    {        
+        if(count($or_where_array) > 0){
+            return DB::table('bureaus')
+                ->join('administrators', 'bureaus.admin_id', '=', 'administrators.admin_id')
+                ->join('workers', 'bureaus.bureau_id', '=', 'workers.bureau_id')
+                ->select('bureaus.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'workers.worker_surname', 
+                'workers.worker_firstname', 'workers.worker_othernames', 'workers.worker_home_gps_address', 'workers.worker_home_location', 
+                'workers.worker_position', 'workers.worker_phone_number', 'workers.worker_email')
+                ->where($where_array)
+                ->orWhere($or_where_array)
+                ->get();
+    
+        } else {
+            return DB::table('bureaus')
+            ->join('administrators', 'bureaus.admin_id', '=', 'administrators.admin_id')
+            ->join('workers', 'bureaus.bureau_id', '=', 'workers.bureau_id')
+            ->select('bureaus.*', 'administrators.admin_surname', 'administrators.admin_firstname', 'workers.worker_surname', 
+            'workers.worker_firstname', 'workers.worker_othernames', 'workers.worker_home_gps_address', 'workers.worker_home_location', 
+            'workers.worker_position', 'workers.worker_phone_number', 'workers.worker_email')
+            ->where($where_array)
+            ->get();
+
+        }
+    }
+
+
 }

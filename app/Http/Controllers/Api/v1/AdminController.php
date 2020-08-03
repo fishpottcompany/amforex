@@ -396,7 +396,7 @@ public function search_for_currency(Request $request)
 }
 
 
-    /*
+/*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 | THIS FUNCTION ADD A NEW CURRENCY TO THE DATABASE
@@ -807,6 +807,52 @@ public function search_for_bureaus(Request $request)
     return response(["status" => "success", "message" => "Operation successful", "data" => $bureaus, "kw" => $request->kw]);
 }
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS ONE BUREAU
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_one_bureau(Request $request)
+{
+
+    $log_controller = new LogController();
+    $bureau_controller = new BureauController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('get-one-bureau')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Permission denined for trying to view one bureaus");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "bureau_id" => "bail|required|integer",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Bureaus Admin", "Getting one bureau failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+
+    $where_array = array(
+        ['workers.worker_was_first', '=', true],
+        ['bureaus.bureau_id', '=', $request->bureau_id],
+    ); 
+
+
+    $this_bureau = $bureau_controller->get_bureau([], $where_array);
+
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $this_bureau]);
+        
+}
 
 
 

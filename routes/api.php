@@ -54,6 +54,10 @@ Route::middleware(['auth:api', 'scope:view-bureaus'])->get('/v1/admin/bureaus/li
 
 Route::middleware(['auth:api', 'scope:view-rates'])->get('/v1/admin/bureaus/search', 'Api\v1\AdminController@search_for_bureaus');
 
+Route::middleware(['auth:api', 'scope:get-one-currency'])->get('/v1/admin/bureaus/get', 'Api\v1\AdminController@get_one_bureau');
+
+Route::middleware(['auth:api', 'scope:update-bureau'])->post('/v1/admin/bureaus/edit', 'Api\v1\AdminController@edit_bureau');
+
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

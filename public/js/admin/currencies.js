@@ -19,9 +19,9 @@ $(document).ready(function ()
    
 /*
 |--------------------------------------------------------------------------
-| ADDING CURRENCY FUNCTION
+| EDITING CURRENCY FUNCTION
 |--------------------------------------------------------------------------
-| WHEN THE ADD CURRENCY FORM SUBMIT BUTTON IS CLICKED
+| WHEN THE EDIT CURRENCY FORM SUBMIT BUTTON IS CLICKED
 |--------------------------------------------------------------------------
 |
 */
@@ -109,7 +109,7 @@ function edit_currency_success_response_function(response)
 {
     show_notification("msg_holder", "success", "Success:", "Currency updated successfully");
     fade_out_loader_and_fade_in_form("loader", "ecform"); 
-    $('#acform')[0].reset();
+    //$('#acform')[0].reset();
 }
 
 function edit_currency_error_response_function(errorThrown)

@@ -1,6 +1,6 @@
 <?php
-$active_page = "currencies";
-$page_name = "Currencies";
+$active_page = "bureaus";
+$page_name = "Bureaus";
 ?>
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
@@ -27,8 +27,8 @@ $page_name = "Currencies";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Edit Currency</h4>
-                      <p class="card-category">Edit a currency that forex bureaus can trade</p>
+                      <h4 class="card-title">Edit Bureau</h4>
+                      <p class="card-category">Edit a bureau that has been licensed to operate</p>
                     </div>
                     <div class="card-body">
                       <div class="row" id="loader">
@@ -36,29 +36,13 @@ $page_name = "Currencies";
                           <div class="dot-spin"></div>
                         </div>
                       </div>
-                      <form id="ecform"  style="display: none">
+                      <form id="edit_bureau_form" style="display:none">
                         <div class="row">
                           <div class="col-md-12">
+                          <p class="text-warning">Bureau information.</p>
                             <div class="form-group">
-                              <label class="bmd-label-floating">Currency Name (Eg: Ghana Cedis)</label>
-                              <input type="hidden" style="display: none" id="currency_id" name="currency_id" class="form-control" required="required" readonly="readonly">
-                              <input type="text" id="currency_full_name" name="currency_full_name" maxlength="100" class="form-control" required="required">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-12">
-                            <div class="form-group">
-                              <label class="bmd-label-floating">Currency Standard Abbreviation (Eg: GHS)</label>
-                              <input type="text" maxlength="3" id="currency_abbreviation" name="currency_abbreviation" class="form-control" required="required">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-12">
-                            <div class="form-group">
-                              <label class="bmd-label-floating">Currency Symbol (Eg: ¢)</label>
-                              <input type="text" id="currency_symbol" name="currency_symbol" class="form-control" required="required">
+                              <label class="bmd-label-floating">Bureau Legally Registered Name</label>
+                              <input type="text" id="bureau_name" name="bureau_name" maxlength="200" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -70,6 +54,143 @@ $page_name = "Currencies";
                                 <option value="0">Yes</option>
                                 <option value="1">No</option>
                               </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau GPS Address</label>
+                              <input type="text" id="bureau_hq_gps_address" name="bureau_hq_gps_address" maxlength="50" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Address/Location</label>
+                              <input type="text" id="bureau_hq_location" name="bureau_hq_location" maxlength="300" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row"  style="display: none" >
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau TIN</label>
+                              <input  type="hidden" style="display: none" id="bureau_tin" name="bureau_tin" maxlength="20" class="form-control" required="required" readonly="readonly">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau License Number</label>
+                              <input type="text" id="bureau_license_no" name="bureau_license_no" maxlength="20" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Business Registration Number</label>
+                              <input type="text" id="bureau_registration_num" name="bureau_registration_num" maxlength="20" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Contact Phone 1</label>
+                              <input type="text" id="bureau_phone_1" name="bureau_phone_1" maxlength="10" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Contact Phone 2</label>
+                              <input type="text" id="bureau_phone_2" name="bureau_phone_2" maxlength="10" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Contact Email 1</label>
+                              <input type="text" id="bureau_email_1" name="bureau_email_1" maxlength="100" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Contact Email 2</label>
+                              <input type="text" id="bureau_email_2" name="bureau_email_2" maxlength="100" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <p class="text-warning">This is the first worker of the bureau who has all the priviledges to manage the bureau. Generally, this worker is the bureau owner or C.E.O</p>
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Surname</label>
+                              <input type="text" id="worker_surname" name="worker_surname" maxlength="55" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Firstname</label>
+                              <input type="text" id="worker_firstname" name="worker_firstname" maxlength="55" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Othernames</label>
+                              <input type="text" id="worker_othernames" name="worker_othernames" maxlength="55" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Home GPS Address</label>
+                              <input type="text" id="worker_gps_address" name="worker_gps_address" maxlength="50" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Home Address/Location</label>
+                              <input type="text" id="worker_location" name="worker_location" maxlength="300" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Position(Eg: CEO, Director)</label>
+                              <input type="text" id="worker_position" name="worker_position" maxlength="100" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Phone Number</label>
+                              <input type="text" id="worker_phone_number" name="worker_phone_number" maxlength="10" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Bureau Worker Email</label>
+                              <input type="text" id="worker_email" name="worker_email" maxlength="100" class="form-control" >
                             </div>
                           </div>
                         </div>
@@ -135,9 +256,9 @@ $page_name = "Currencies";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-    <script src="/js/admin/currencies.js"></script>
+    <script src="/js/admin/bureaus.js"></script>
     <script type="text/javascript">
-      get_this_currency('<?php echo intval($currency_id); ?>');
+      get_this_bureau('<?php echo intval($bureau_id); ?>');
     </script>
   </body>
   </html>

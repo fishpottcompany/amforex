@@ -75,8 +75,8 @@ Route::get('/admin/bureaus/add', function () {
     return view('admin/bureaus/add');
 });
 
-Route::get('/admin/bureaus/edit', function () {
-    return view('admin/bureaus/edit');
+Route::get('/admin/bureaus/edit/{id}', function ($id) {
+    return view('admin/bureaus/edit', ['bureau_id' => $id]);
 });
 
 

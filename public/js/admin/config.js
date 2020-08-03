@@ -41,7 +41,8 @@ var show_logging_in_console = true;
 var admin_api_bureaus_add_bureau_url = `${host}/api/v1/admin/bureaus/add`;
 var admin_api_bureaus_get_bureaus_list_url = `${host}/api/v1/admin/bureaus/list/?page=`;
 var admin_api_bureaus_search_for_bureaus_url = `${host}/api/v1/admin/bureaus/search/?kw=`;
-
+var admin_api_bureaus_edit_bureau_url = `${host}/api/v1/admin/bureaus/add`;
+var admin_api_bureaus_get_one_bureau_url = `${host}/api/v1/admin/bureaus/get/?bureau_id=`;
 
 // LOGGING INFORMATION
 function show_log_in_console(log){

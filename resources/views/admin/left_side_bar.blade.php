@@ -45,6 +45,7 @@
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Search</a>
             </div>
           </li>
+          <!--
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'receipts'){ echo 'active'; } ?>">
             <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="material-icons">receipt</i>
@@ -56,6 +57,7 @@
             </div>
           </li>
         </li>
+        -->
         <li class="nav-item dropdown  <?php if(isset($active_page) && $active_page == 'reports'){ echo 'active'; } ?>">
           <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="material-icons">library_books</i>
