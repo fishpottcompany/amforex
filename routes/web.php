@@ -94,15 +94,19 @@ Route::get('/login', function () {
     return view('bureau/login');
 });
 
-Route::get('/rates', function () {
-    return view('rates');
+Route::get('/bureau/verification', function () {
+    return view('bureau/otp');
 });
 
+Route::get('/bureau/dashboard', function () {
+    return view('bureau/dashboard');
+});
+
+/*
 Route::get('/user', function () {
     return view('user');
 });
 
-/*
 Route::get('/', function () {
     return view('welcome');
 });

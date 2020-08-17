@@ -8,7 +8,7 @@ $(document).ready(function ()
     {
         localStorage.setItem("worker_firstname", response.worker_firstname);
         localStorage.setItem("worker_surname", response.worker_surname);
-        localStorage.setItem("worker_access_token", response.worker_token);
+        localStorage.setItem("worker_access_token", response.access_token);
         show_notification("msg_holder", "success", "Success:", "Login successful");
         redirect_to_next_page(worker_web_passcode_page_url, false);
     }

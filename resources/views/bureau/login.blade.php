@@ -2,7 +2,7 @@
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
-<script src="/js/config.js"></script>
+<script src="/js/bureau/config.js"></script>
 <script src="/js/bureau/check_auth_login_pg.js"></script>
 @endsection()
 
@@ -21,7 +21,7 @@
             <div class="col-md-8">
               <div class="card">
                 <div class="card-header card-header-warning text-center">
-                  <h4 class="card-title font-weight-bold">Forex Bureau</h4>
+                  <h4 class="card-title font-weight-bold">Bureau</h4>
                   
                   <p class="text-center" id="info"></p>
                 </div>
@@ -85,8 +85,6 @@
   <script src="/js/plugins/perfect-scrollbar.jquery.min.js"></script>
   <!-- Place this tag in your head or just before your close body tag. -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!--  Google Maps Plugin    -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
   <!-- Chartist JS -->
   <script src="/js/plugins/chartist.min.js"></script>
   <!--  Notifications Plugin    -->
@@ -96,5 +94,5 @@
   <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script src="/demo/demo.js"></script>
   <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-  <script src="/js/admin/login.js"></script>
+  <script src="/js/bureau/login.js"></script>
 @endsection

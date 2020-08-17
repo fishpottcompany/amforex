@@ -7,20 +7,20 @@
 var host = "http://amforex";
 
 // LOGIN PAGE URLS
-var worker_api_login_url = `${host}/api/v1/worker/login`;
-var worker_web_login_page_url = `${host}/worker/login`;
+var worker_api_login_url = `${host}/api/v1/bureau/login`;
+var worker_web_login_page_url = `${host}/`;
 
 
 // PASSCODE VERIFICATION PAGE URL
-var worker_api_send_passcode_url = `${host}/api/v1/worker/verification`;
-var worker_api_resend_passcode_url = `${host}/api/v1/worker/resend`;
-var worker_web_passcode_page_url = `${host}/worker/verification`;
+var worker_api_send_passcode_url = `${host}/api/v1/bureau/verification`;
+var worker_api_resend_passcode_url = `${host}/api/v1/bureau/resend`;
+var worker_web_passcode_page_url = `${host}/bureau/verification`;
 
 // DASHBOARD PAGE
-var worker_web_dashboard_page_url = `${host}/worker/dashboard`;
+var worker_web_dashboard_page_url = `${host}/bureau/dashboard`;
 
 // LOG OUT
-var worker_api_logout_url = `${host}/api/v1/worker/logout`;
+var worker_api_logout_url = `${host}/api/v1/bureau/logout`;
 
 
 
@@ -73,7 +73,7 @@ function delete_user_authentication()
 function user_token_is_no_longer_valid()
 {
     delete_user_authentication();
-    redirect_to_next_page(admin_web_login_page_url, false); 
+    redirect_to_next_page(worker_web_login_page_url, false); 
 }
 
 function sign_out_success(response)
@@ -90,16 +90,21 @@ function sign_out_error(errorThrown)
 
 function sign_me_out()
 {    
-    fade_in_loader_and_fade_out_form("loader", "logoutspan");     
-    var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-    send_restapi_request_to_server_from_form("get", admin_api_logout_url, bearer, "", "json", sign_out_success, sign_out_error);
+    fade_in_loader_and_fade_out_form("logoutloader", "logoutspan");     
+    var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
+    send_restapi_request_to_server_from_form("get", worker_api_logout_url, bearer, "", "json", sign_out_success, sign_out_error);
+}
+
+
+function hide_notification(){
+    document.getElementById('msg_div').style.display = "none";
 }
 
 // SHOWING A NOTIFICATION ON THE SCREEN
 function show_notification(id, type, title, message)
 {
     $('#'+id).html(
-        '<div class="alert alert-' + type + ' alert-dismissible fade show my-1" role="alert"  style="z-index: 10000000;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>' + title +' </strong>'+ message +'</div>'
+        '<div id="msg_div" class="' + type + '"><b>' + title +'</b> '+ message +'<a id="close-bar" onclick="hide_notification();">×</a></div>'
     );
 }
 

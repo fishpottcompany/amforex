@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routes -- FOR ADMINISTRATOR
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('auth:api')->get('/administrator', function (Request $request) {
     return $request->user();
 });
+
 
 Route::post('/v1/admin/register', 'Api\v1\AdminController@register');
 
@@ -58,6 +59,27 @@ Route::middleware(['auth:api', 'scope:get-one-currency'])->get('/v1/admin/bureau
 
 Route::middleware(['auth:api', 'scope:update-bureau'])->post('/v1/admin/bureaus/edit', 'Api\v1\AdminController@edit_bureau');
 
+
+
+/*
+|--------------------------------------------------------------------------
+| API Routes -- FOR BUREAU WORKER
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+
+//Route::middleware('auth:worker')->post('/v1/bureau/login', 'Api\v1\WorkerController@login');
+Route::post('/v1/bureau/login', 'Api\v1\WorkerController@login');
+
+Route::middleware('auth:worker')->get('/v1/bureau/verification', 'Api\v1\WorkerController@verify_passcode');
+
+Route::middleware('auth:worker')->get('/v1/bureau/resend', 'Api\v1\WorkerController@resend_passcode');
+
+Route::middleware('auth:worker')->get('/v1/bureau/logout', 'Api\v1\WorkerController@logout');
 
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

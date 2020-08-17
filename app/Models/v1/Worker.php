@@ -12,6 +12,13 @@ class Worker extends Authenticatable
     use HasApiTokens, Notifiable;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'workers';
+
+    /**
      * The primary key associated with the table.
      *
      * @var string

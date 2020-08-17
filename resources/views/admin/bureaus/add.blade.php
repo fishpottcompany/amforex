@@ -121,7 +121,7 @@ $page_name = "Bureaus";
                         <div class="row">
                           <div class="col-md-12">
                             <p class="text-warning">Enter a bureau worker's needed information. This worker will have the priviledges to add other workers and manage the bureau. Generally, this worker should be the bureau owner or C.E.O</p>
-                            <p class="text-danger font-weight-bold">You have to inform the bureau worker that their password is the business TIN and their PIN is the last 4 numbers on the bureau tin. Advice them to change it when they first sign in.</p>
+                            <p class="text-danger font-weight-bold">You have to inform the bureau worker that their password is the business TIN and their PIN is the last 4 numbers of the bureau tin. Advice them to change it when they first sign in.</p>
                             <div class="form-group">
                               <label class="bmd-label-floating">Bureau Worker Surname</label>
                               <input type="text" maxlength="55" name="worker_surname" class="form-control" required="required">

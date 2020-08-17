@@ -47,6 +47,10 @@ class Kernel extends HttpKernel
         'administrator' => [
             \App\Http\Middleware\PassportCustomProvider::class
         ],
+
+        'worker' => [
+            \App\Http\Middleware\PassportCustomProvider::class
+        ],
     ];
 
     /**
