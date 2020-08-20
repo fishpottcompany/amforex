@@ -662,7 +662,7 @@ public function add_bureau(Request $request)
     $validatedData["worker_pin"] = Hash::make(substr($request->bureau_tin,-4));
     $validatedData["password"] = bcrypt($request->bureau_tin);
     $validatedData["worker_flagged"] = false;
-    $validatedData["worker_scope"] = "false";
+    $validatedData["worker_scope"] = "add-customer view-customer get-one-customer";
     
     $old_bureau = Bureau::where('bureau_tin', '=', $validatedData["bureau_tin"])->first();
 

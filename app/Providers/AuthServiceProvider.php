@@ -28,6 +28,8 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::routes();
         Passport::tokensCan([
+
+            //ADMIN SCOPE
             'add-currency' => 'Add currency',
             'view-currencies' => 'View currencies',
             'get-one-currency' => 'View one currency',
@@ -40,9 +42,17 @@ class AuthServiceProvider extends ServiceProvider
             'view-bureaus' => 'View bureaus',
             'get-one-bureau' => 'View one bureau',
             'update-bureau' => 'Update bureau',
+
+            //BUREAU-WORKER SCOPES
+            'add-customer' => 'Add customer',
+            'view-customer' => 'View customer',
+            'get-one-customer' => 'View one customer',
+
         ]);
         
     }
+
+    // add-customer view-customer get-one-customer
     
     //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate add-bureau view-bureaus get-one-bureau update-bureau
 }

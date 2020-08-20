@@ -86,6 +86,7 @@ Route::get('/admin/bureaus/edit/{id}', function ($id) {
 |--------------------------------------------------------------------------
 */
 
+//LOGIN
 Route::get('/', function () {
     return view('bureau/login');
 });
@@ -100,6 +101,14 @@ Route::get('/bureau/verification', function () {
 
 Route::get('/bureau/dashboard', function () {
     return view('bureau/dashboard');
+});
+
+// CUSTOMERS
+Route::get('/bureau/customers/add', function () {
+    return view('bureau/customers/add');
+});
+Route::get('/customers/add', function () {
+    return view('bureau/customers/add');
 });
 
 /*

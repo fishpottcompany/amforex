@@ -81,5 +81,7 @@ Route::middleware('auth:worker')->get('/v1/bureau/resend', 'Api\v1\WorkerControl
 
 Route::middleware('auth:worker')->get('/v1/bureau/logout', 'Api\v1\WorkerController@logout');
 
+Route::middleware(['auth:worker', 'scope:add-customer'])->post('/v1/bureau/customers/add', 'Api\v1\WorkerController@add_customer');
+
 //Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
 

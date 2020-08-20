@@ -21,18 +21,8 @@
               <p>Rates</p>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">View Rates</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/add">Add/Update Rate</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'bureaus'){ echo 'active'; } ?>">
-            <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="material-icons">business</i>
-              <p>Bureaus</p>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/bureaus/list">View Bureaus</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/bureaus/add">Add Bureau</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">View Rates</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/add">Add/Update Rate</a>
             </div>
           </li>
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'transactions'){ echo 'active'; } ?>">
@@ -41,52 +31,30 @@
               <p>Transactions</p>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/rates/list">View All</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Search</a>
+              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/rates/list">View All</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">Search</a>
             </div>
           </li>
-          <!--
-          <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'receipts'){ echo 'active'; } ?>">
+          
+          <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'customers'){ echo 'active'; } ?>">
             <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="material-icons">receipt</i>
-              <p>Receipts</p>
+              <i class="material-icons">supervised_user_circle</i>
+              <p>Customers</p>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/rates/list">View All</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Search</a>
+              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/customers/list">View Customers</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/customers/add">Add Customer</a>
             </div>
           </li>
-        </li>
-        -->
-        <li class="nav-item dropdown  <?php if(isset($active_page) && $active_page == 'reports'){ echo 'active'; } ?>">
-          <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="material-icons">library_books</i>
-            <p>Reports</p>
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/rates/list">View All</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Search</a>
-          </div>
-        </li>
-        <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'currencies'){ echo 'active'; } ?>">
-          <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="material-icons">monetization_on</i>
-            <p>Currencies</p>
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/currencies/list">View Currencies</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/currencies/add">Add Currency</a>
-          </div>
-        </li>
         <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'administrators'){ echo 'active'; } ?>">
           <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="material-icons">admin_panel_settings</i>
-            <p>Administrators</p>
+            <p>Workers</p>
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/rates/list">View Admins</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Add Admin</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Edit Admin</a>
+            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/rates/list">View Admins</a>
+            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">Add Admin</a>
+            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">Edit Admin</a>
           </div>
         </li>
         </ul>

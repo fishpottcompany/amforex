@@ -7,6 +7,7 @@ use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
 use App\Mail\bureau\PassCodeMail;
 use App\Http\Controllers\Controller;
+use App\Models\v1\Customer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -59,8 +60,10 @@ public function login(Request $request)
 
 
     // get new token
-    $tokenResult = $worker->createToken("authToken");
-    //$accessToken = auth()->user()->createToken("authToken", [$worker->worker_scope])->accessToken;
+    //$tokenResult = $worker->createToken("authToken");
+    $tokenResult = $worker->createToken("authToken", [$worker->worker_scope]);
+    
+    //$tokenResult = auth()->user()->createToken("authToken", [$worker->worker_scope])->accessToken;
     $log_controller->save_log("worker", $request->worker_phone_number, "Login Worker", "1st-layer login successful");
 
     $passcode = $passcode_controller->generate_passcode();
@@ -189,6 +192,69 @@ public function verify_passcode(Request $request)
         return response(["status" => "fail", "message" => "Verification failed. Try with the correct passcode and if this continues, restart login."]);
     }
 }
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION ADD A NEW CUSTOMER TO THE DATABASE
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function add_customer(Request $request)
+{
+    $log_controller = new LogController();
+    $customer_controller = new CustomerController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('add-customer')) {
+        $log_controller->save_log("worker", auth()->user()->admin_id, "Customers Worker", "Permission denined for trying to add customer");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "customer_firstname" => "bail|required|max:100",
+        "customer_surname" => "bail|required|max:100",
+        "customer_othernames" => "bail|max:100",
+        "customer_phone_number" => "bail|required|regex:/(+)[0-9]{0,14}/|min:10|max:15",
+        "customer_email" => "bail|required|max:100",
+        "customer_nationality" => "bail|required|max:100",
+        "customer_id_1_type" => "bail|required|max:50",
+        "customer_id_1_number" => "bail|required|max:50",
+        "worker_pin" => "bail|required|confirmed|min:4|max:8",
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Customers Worker", "Addition of currency failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->admin_id, "Customers Worker", "Addition of customer failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $where_array = array(
+        ['customer_id_1_type', '=', $request->customer_id_1_type],
+        ['customer_id_1_number', '=', $request->customer_id_1_number],
+    ); 
+
+
+    if (Customer::where($where_array)->exists()) {
+        return response(["status" => "fail", "message" => "Customer already exists."]);
+    } else {
+        $customer_controller->add_customer($request->customer_surname, $request->customer_firstname, $request->customer_othernames, $request->customer_phone_number, $request->customer_email, $request->customer_nationality, $request->customer_id_1_type, $request->customer_id_1_number, auth()->user()->worker_id);
+        $log_text = "New customer added. Name: " . $request->customer_surname . " " . $request->customer_firstname . ". ID TYPE: " . $request->customer_id_1_type . ". ID NUMBER: " . $request->customer_id_1_number;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Customer Worker", $log_text);
+        return response(["status" => "success", "message" => "Customer added successfully"]);
+    }
+}
+
 
 
     
