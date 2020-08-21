@@ -212,7 +212,7 @@ public function add_customer(Request $request)
     }
 
     if (!$request->user()->tokenCan('add-customer')) {
-        $log_controller->save_log("worker", auth()->user()->admin_id, "Customers Worker", "Permission denined for trying to add customer");
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Customers Worker", "Permission denined for trying to add customer");
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
 
@@ -220,12 +220,12 @@ public function add_customer(Request $request)
         "customer_firstname" => "bail|required|max:100",
         "customer_surname" => "bail|required|max:100",
         "customer_othernames" => "bail|max:100",
-        "customer_phone_number" => "bail|required|regex:/(+)[0-9]{0,14}/|min:10|max:15",
+        "customer_phone_number" => "bail|required|regex:/^\+\d{1,3}[0-9]{9}/|min:10|max:15",
         "customer_email" => "bail|required|max:100",
         "customer_nationality" => "bail|required|max:100",
         "customer_id_1_type" => "bail|required|max:50",
         "customer_id_1_number" => "bail|required|max:50",
-        "worker_pin" => "bail|required|confirmed|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
     ]);
 
     if (auth()->user()->worker_flagged) {
@@ -235,7 +235,7 @@ public function add_customer(Request $request)
     }
 
     if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
-        $log_controller->save_log("worker", auth()->user()->admin_id, "Customers Worker", "Addition of customer failed because of incorrect pin");
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Customers Worker", "Addition of customer failed because of incorrect pin");
         return response(["status" => "fail", "message" => "Incorrect pin."]);
     }
 
@@ -245,10 +245,21 @@ public function add_customer(Request $request)
     ); 
 
 
-    if (Customer::where($where_array)->exists()) {
+    if (Customer::where($where_array)->exists() || Customer::where("customer_phone_number", "=", $request->customer_phone_number)->exists()) {
         return response(["status" => "fail", "message" => "Customer already exists."]);
     } else {
-        $customer_controller->add_customer($request->customer_surname, $request->customer_firstname, $request->customer_othernames, $request->customer_phone_number, $request->customer_email, $request->customer_nationality, $request->customer_id_1_type, $request->customer_id_1_number, auth()->user()->worker_id);
+        
+        for ($i=0; $i < 100; $i++) { 
+            $customer_amforex_id_number = rand(1000000000000, 9999999999999);
+            if(!Customer::where("customer_am_id_number", "=", $customer_amforex_id_number)->exists()){
+                break;
+            } else if($i == 99){
+                $log_controller->save_log("worker", auth()->user()->worker_id, "Customers Worker", "Addition of customer failed because of failed generation of Unique AM Forex ID.");
+                return response(["status" => "fail", "message" => "Incorrect pin."]);
+            }
+        }
+
+        $customer_controller->add_customer($customer_amforex_id_number, $request->customer_surname, $request->customer_firstname, $request->customer_othernames, $request->customer_phone_number, $request->customer_email, $request->customer_nationality, $request->customer_id_1_type, $request->customer_id_1_number, auth()->user()->bureau_id, auth()->user()->worker_id);
         $log_text = "New customer added. Name: " . $request->customer_surname . " " . $request->customer_firstname . ". ID TYPE: " . $request->customer_id_1_type . ". ID NUMBER: " . $request->customer_id_1_number;
         $log_controller->save_log("worker", auth()->user()->worker_id, "Customer Worker", $log_text);
         return response(["status" => "success", "message" => "Customer added successfully"]);

@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-    public function add_customer($customer_surname, $customer_firstname, $customer_othernames, $customer_phone_number, $customer_email, $customer_nationality, $customer_id_1_type, $customer_id_1_number, $user_id)
+    public function add_customer($customer_amforex_id_number, $customer_surname, $customer_firstname, $customer_othernames, $customer_phone_number, $customer_email, $customer_nationality, $customer_id_1_type, $customer_id_1_number,  $worker_bureau_id, $user_id)
     {
         $customer = new Customer();
+        $customer->customer_am_id_number = $customer_amforex_id_number;
         $customer->customer_surname = $customer_surname;
         $customer->customer_firstname = $customer_firstname;
         $customer->customer_othernames = $customer_othernames;
@@ -20,6 +21,7 @@ class CustomerController extends Controller
         $customer->customer_id_1_type = $customer_id_1_type;
         $customer->customer_id_1_number = $customer_id_1_number;
         $customer->customer_flagged = false;
+        $customer->bureau_id = $worker_bureau_id;
         $customer->worker_id = $user_id;
         $customer->save();
     }

@@ -38,6 +38,8 @@ class Customer extends Authenticatable
         'customer_id_2_number',
         'customer_id_3_type',
         'customer_id_3_number',
+        'bureau_id',
+        'worker_id',
         'customer_flagged',
         'created_at',
         'updated_at',

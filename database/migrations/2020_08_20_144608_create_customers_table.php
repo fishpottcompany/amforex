@@ -17,7 +17,7 @@ class CreateCustomersTable extends Migration
         //Schema::dropIfExists('customers');
         Schema::create('customers', function (Blueprint $table) {
             $table->bigIncrements('customer_id');
-            $table->uuid('customer_am_id_number');
+            $table->string('customer_am_id_number')->unique();
             $table->string('customer_surname', 255);
             $table->string('customer_firstname', 255);
             $table->string('customer_othernames', 255)->nullable();
@@ -26,17 +26,19 @@ class CreateCustomersTable extends Migration
             $table->string('customer_nationality', 255);
             $table->string('customer_id_1_type', 255);
             $table->string('customer_id_1_number', 255);
-            $table->string('customer_id_2_type', 255);
-            $table->string('customer_id_2_number', 255);
-            $table->string('customer_id_3_type', 255);
-            $table->string('customer_id_3_number', 255);
+            $table->string('customer_id_2_type', 255)->nullable();
+            $table->string('customer_id_2_number', 255)->nullable();
+            $table->string('customer_id_3_type', 255)->nullable();
+            $table->string('customer_id_3_number', 255)->nullable();
             $table->boolean('customer_flagged');
             $table->timestamps();
         });
 
         Schema::table('customers', function (Blueprint $table) {
             $table->unsignedBigInteger('worker_id');
+            $table->unsignedBigInteger('bureau_id');
 
+            $table->foreign('bureau_id')->references('bureau_id')->on('bureaus');
             $table->foreign('worker_id')->references('worker_id')->on('workers');
         });
     }
