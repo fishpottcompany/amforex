@@ -11,13 +11,13 @@
         <ul class="nav">
           <li class="nav-item <?php if(isset($active_page) && $active_page == 'trades'){ echo 'active'; } ?>">
             <a class="nav-link" href="<?php echo url('/'); ?>/bureau/trades/add">
-              <i class="material-icons">rate_review</i>
+              <i class="material-icons">swap_vertical_circle</i>
               <p>Make A Trade</p>
             </a>
           </li>
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'stocks'){ echo 'active'; } ?>">
             <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="material-icons">monetization_on</i>
+              <i class="material-icons">source</i>
               <p>Currencies Stock</p>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
