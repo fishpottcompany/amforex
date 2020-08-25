@@ -1,22 +1,22 @@
 <?php
-$active_page = "rates";
-$page_name = "Rates";
+$active_page = "stocks";
+$page_name = "Stocks";
 ?>
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
-<script src="/js/admin/config.js"></script>
-<script src="/js/admin/check_auth.js"></script>
+<script src="/js/bureau/config.js"></script>
+<script src="/js/bureau/check_auth.js"></script>
 @endsection()
 
 @section('navbar')
-  @include('admin.navbar')
+  @include('bureau.navbar')
 @endsection
 
 @section('left_side_bar')
-  @include('admin.left_side_bar')
+  @include('bureau.left_side_bar')
 @endsection
 
 <!-- SETTING THE CONTENT AS REQUIRED BY THE CORE STRUCTURE OF THE PAGE -->
@@ -27,11 +27,11 @@ $page_name = "Rates";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Add/Update Rate</h4>
-                      <p class="card-category">Add/update a rate that forex bureaus can make reference to</p>
+                      <h4 class="card-title">Add/Update Currency Stock</h4>
+                      <p class="card-category">Add/update the bureau stock of currency</p>
                     </div>
                     <div class="card-body">
-                      <div class="row" id="loader">
+                      <div class="row" style="display: none" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
@@ -40,8 +40,8 @@ $page_name = "Rates";
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label for="currency_from_id">Currency (From)</label>
-                              <select name="currency_from_id" class="form-control" id="currency_from_id"  required="required">
+                              <label for="currency_from_id">Currency</label>
+                              <select name="currency_id" class="form-control" id="currency_from_id"  required="required">
                                 <option value="">Choose Currency</option>
                               </select>
                             </div>
@@ -50,18 +50,8 @@ $page_name = "Rates";
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label for="currency_to_id">Currency (To)</label>
-                              <select name="currency_to_id" class="form-control" id="currency_to_id"  required="required">
-                                <option value="">Choose Currency</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-12">
-                            <div class="form-group">
-                              <label class="bmd-label-floating">Rate (Currency[From] : 1 Currency [To])</label>
-                              <input type="text" id="rate" maxlength="5" name="rate" class="form-control" required="required">
+                              <label class="bmd-label-floating">Stock</label>
+                              <input type="text" id="rate" maxlength="12" name="stock" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -69,7 +59,7 @@ $page_name = "Rates";
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">PIN</label>
-                              <input type="password" name="admin_pin" maxlength="10" class="form-control" required="required">
+                              <input type="password" name="worker_pin" maxlength="10" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -126,8 +116,8 @@ $page_name = "Rates";
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
-    <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-    <script src="/js/admin/rates.js"></script>
+    <!-- MY CUSTOM SCRIPTS FOR bureau -->
+    <script src="/js/bureau/stocks.js"></script>
     <script type="text/javascript">
       get_all_currencies();
     </script>

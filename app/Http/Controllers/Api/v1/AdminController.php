@@ -494,7 +494,7 @@ public function add_rate(Request $request)
     $currency_to = $currency_controller->get_currency("currency_id", $request->currency_to_id);
     
     if($currency_from[0]->currency_abbreviation == "" || $currency_to[0]->currency_abbreviation == ""){
-        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of rate failed becauseone of the currencies were not found in the database");
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Rates Admin", "Addition of rate failed because one of the currencies were not found in the database");
         return response(["status" => "fail", "message" => "Currency not found"]);
     }
 
@@ -513,7 +513,6 @@ public function add_rate(Request $request)
     }
 }
 
-///////////////////////////888888888888888888888888888888888888888888888888888888888888888888888
 
 
 /*
@@ -654,6 +653,7 @@ public function add_bureau(Request $request)
         "worker_gps_address" => "bail|required|max:50",
         "worker_location" => "bail|required|max:300",
         "worker_position" => "bail|required|max:100",
+        "worker_scope" => "bail|required",
         "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
         "worker_email" => "bail|email|required|max:100",
         "admin_pin" => "bail|required|min:4|max:8"
@@ -662,7 +662,6 @@ public function add_bureau(Request $request)
     $validatedData["worker_pin"] = Hash::make(substr($request->bureau_tin,-4));
     $validatedData["password"] = bcrypt($request->bureau_tin);
     $validatedData["worker_flagged"] = false;
-    $validatedData["worker_scope"] = "add-customer view-customer get-one-customer";
     
     $old_bureau = Bureau::where('bureau_tin', '=', $validatedData["bureau_tin"])->first();
 

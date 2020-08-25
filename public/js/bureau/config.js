@@ -23,6 +23,17 @@ var worker_web_dashboard_page_url = `${host}/bureau/dashboard`;
 var worker_api_logout_url = `${host}/api/v1/bureau/logout`;
 
 
+// RATES 
+var worker_api_currencies_get_currency_list_url = `${host}/api/v1/bureau/currencies/list`;
+var worker_api_rates_add_rate_url = `${host}/api/v1/bureau/rates/add`;
+var worker_api_rates_get_rate_list_url = `${host}/api/v1/bureau/rates/list/?page=`;
+var worker_api_rates_search_for_rates_url = `${host}/api/v1/bureau/rates/search/?kw=`;
+
+// STOCKS
+var worker_api_stocks_add_stock_url = `${host}/api/v1/bureau/stocks/add`;
+var worker_api_stocks_get_stocks_list_url = `${host}/api/v1/bureau/stocks/list/?page=`;
+var worker_api_stocks_search_for_stocks_url = `${host}/api/v1/bureau/stocks/search/?kw=`;
+
 
 var show_logging_in_console = true;
 

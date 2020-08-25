@@ -5,9 +5,8 @@ namespace App\Models\v1;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class Rate extends Model
+class CurrencyStock extends Model
 {
-
     use Notifiable;
 
     /**
@@ -15,7 +14,7 @@ class Rate extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'rate_id';
+    protected $primaryKey = 'stock_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,12 +22,12 @@ class Rate extends Model
      * @var array
      */
     protected $fillable = [
-        'rate_id', 
-        'rate_ext_id', 
-        'currency_from_id', 
-        'currency_to_id', 
-        'rate', 
-        'admin_id',
+        'stock_id', 
+        'stock_ext_id', 
+        'stock', 
+        'worker_id', 
+        'bureau_id', 
+        'currency_id', 
         'created_at',
         'updated_at',
     ];
@@ -41,5 +40,4 @@ class Rate extends Model
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    //
 }

@@ -7,16 +7,16 @@ $page_name = "Rates";
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
-<script src="/js/admin/config.js"></script>
-<script src="/js/admin/check_auth.js"></script>
+<script src="/js/bureau/config.js"></script>
+<script src="/js/bureau/check_auth.js"></script>
 @endsection()
 
 @section('navbar')
-  @include('admin.navbar')
+  @include('bureau.navbar')
 @endsection
 
 @section('left_side_bar')
-  @include('admin.left_side_bar')
+  @include('bureau.left_side_bar')
 @endsection
 
 <!-- SETTING THE CONTENT AS REQUIRED BY THE CORE STRUCTURE OF THE PAGE -->
@@ -31,7 +31,7 @@ $page_name = "Rates";
                       <p class="card-category">Add/update a rate that forex bureaus can make reference to</p>
                     </div>
                     <div class="card-body">
-                      <div class="row" id="loader">
+                      <div class="row" style="display: none" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
@@ -69,7 +69,7 @@ $page_name = "Rates";
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">PIN</label>
-                              <input type="password" name="admin_pin" maxlength="10" class="form-control" required="required">
+                              <input type="password" name="worker_pin" maxlength="10" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -126,8 +126,8 @@ $page_name = "Rates";
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
-    <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-    <script src="/js/admin/rates.js"></script>
+    <!-- MY CUSTOM SCRIPTS FOR bureau -->
+    <script src="/js/bureau/rates.js"></script>
     <script type="text/javascript">
       get_all_currencies();
     </script>

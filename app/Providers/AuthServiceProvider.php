@@ -44,15 +44,22 @@ class AuthServiceProvider extends ServiceProvider
             'update-bureau' => 'Update bureau',
 
             //BUREAU-WORKER SCOPES
-            'add-customer' => 'Add customer',
-            'view-customer' => 'View customer',
-            'get-one-customer' => 'View one customer',
+            'worker_add-customer' => 'Add customer',
+            'worker_view-customer' => 'View customer',
+            'worker_get-one-customer' => 'View one customer',
+            'worker_view-currencies' => 'View currencies',
+            'worker_add-rate' => 'Add rate',
+            'worker_view-rates' => 'View rates',
+            'worker_get-one-rate' => 'View one rate',
+            'worker_update-rate' => 'Update rate',
+            'worker_add-stock' => 'Add Stock',
+            'worker_view-stocks' => 'View stock',
 
         ]);
         
     }
 
-    // add-customer view-customer get-one-customer
+    // worker_add-customer worker_view-customer worker_get-one-customer worker_view-currencies worker_add-rate worker_view-rates worker_get-one-rate worker_update-rate worker_view-stocks worker_add-stock
     
     //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate add-bureau view-bureaus get-one-bureau update-bureau
 }

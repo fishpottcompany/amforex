@@ -81,7 +81,20 @@ Route::middleware('auth:worker')->get('/v1/bureau/resend', 'Api\v1\WorkerControl
 
 Route::middleware('auth:worker')->get('/v1/bureau/logout', 'Api\v1\WorkerController@logout');
 
-Route::middleware(['auth:worker', 'scope:add-customer'])->post('/v1/bureau/customers/add', 'Api\v1\WorkerController@add_customer');
+Route::middleware(['auth:worker', 'scope:worker_add-customer'])->post('/v1/bureau/customers/add', 'Api\v1\WorkerController@add_customer');
 
-//Route::get('/v1/admin/verification', 'Api\v1\AdminController@verify_passcode');
+Route::middleware(['auth:api', 'scope:worker_view-currencies'])->get('/v1/bureau/currencies/list', 'Api\v1\WorkerController@get_all_currencies');
+
+Route::middleware(['auth:worker', 'scope:worker_add-rate'])->post('/v1/bureau/rates/add', 'Api\v1\WorkerController@add_rate');
+
+Route::middleware(['auth:worker', 'scope:worker_view-rates'])->get('/v1/bureau/rates/list', 'Api\v1\WorkerController@get_all_rates');
+
+Route::middleware(['auth:worker', 'scope:worker_view-rates'])->get('/v1/bureau/rates/search', 'Api\v1\WorkerController@search_for_rates');
+
+Route::middleware(['auth:worker', 'scope:worker_add-stock'])->post('/v1/bureau/stocks/add', 'Api\v1\WorkerController@add_currency_stock');
+
+Route::middleware(['auth:worker', 'scope:worker_view-stocks'])->get('/v1/bureau/stocks/list', 'Api\v1\WorkerController@get_all_stocks');
+
+Route::middleware(['auth:worker', 'scope:worker_view-stocks'])->get('/v1/bureau/stocks/search', 'Api\v1\WorkerController@search_for_stocks');
+
 

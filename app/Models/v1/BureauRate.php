@@ -5,17 +5,25 @@ namespace App\Models\v1;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class Rate extends Model
+class BureauRate extends Model
 {
-
+    
     use Notifiable;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'bureau_rates';
+
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'rate_id';
+    protected $primaryKey = 'bureau_rate_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,12 +31,12 @@ class Rate extends Model
      * @var array
      */
     protected $fillable = [
-        'rate_id', 
-        'rate_ext_id', 
+        'bureau_rate_id', 
+        'bureau_rate_ext_id', 
         'currency_from_id', 
         'currency_to_id', 
         'rate', 
-        'admin_id',
+        'worker_id',
         'created_at',
         'updated_at',
     ];

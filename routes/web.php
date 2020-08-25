@@ -111,6 +111,41 @@ Route::get('/customers/add', function () {
     return view('bureau/customers/add');
 });
 
+
+// RATES
+Route::get('/bureau/rates/list', function () {
+    return view('bureau/rates/list');
+});
+
+Route::get('/bureau/rates/add', function () {
+    return view('bureau/rates/add');
+});
+
+Route::get('/bureau/rates/edit', function () {
+    return view('bureau/rates/edit');
+});
+
+// STOCKS
+Route::get('/bureau/stocks/list', function () {
+    return view('bureau/stocks/list');
+});
+
+Route::get('/bureau/stocks/add', function () {
+    return view('bureau/stocks/add');
+});
+
+// TRADES
+Route::get('/bureau/trades/add', function () {
+    return view('bureau/trades/add');
+});
+
+
+// TRANSACTIONS
+Route::get('/bureau/transactions/list', function () {
+    return view('bureau/transactions/list');
+});
+
+
 /*
 Route::get('/user', function () {
     return view('user');

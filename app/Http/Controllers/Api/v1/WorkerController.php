@@ -7,6 +7,8 @@ use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
 use App\Mail\bureau\PassCodeMail;
 use App\Http\Controllers\Controller;
+use App\Models\v1\BureauRate;
+use App\Models\v1\CurrencyStock;
 use App\Models\v1\Customer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +29,7 @@ class WorkerController extends Controller
     /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
-| THIS FUNCTION PROVIDES A REGISTERED ADMIN WITH AN ACCESS TOKEN
+| THIS FUNCTION PROVIDES A REGISTERED WORKER WITH AN ACCESS TOKEN
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -90,7 +92,7 @@ public function login(Request $request)
 /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
-| THIS FUNCTION REVOKES AN ADMIN'S ACCESS TOKEN
+| THIS FUNCTION REVOKES A WORKER'S ACCESS TOKEN
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -122,7 +124,7 @@ public function resend_passcode(Request $request)
     }
 
     if (auth()->user()->worker_flagged) {
-        $log_controller->save_log("worker", auth()->user()->worker_id, "Login Admin", "Resend passcode failed because worker is flagged");
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Login Worker", "Resend passcode failed because worker is flagged");
         $request->user()->token()->revoke();
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
@@ -165,7 +167,7 @@ public function verify_passcode(Request $request)
     }
 
     if (auth()->user()->worker_flagged) {
-        $log_controller->save_log("worker", auth()->user()->worker_id, "Login Admin", "Passcode verification failed because worker is flagged");
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Login Worker", "Passcode verification failed because worker is flagged");
         $request->user()->token()->revoke();
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
@@ -211,7 +213,7 @@ public function add_customer(Request $request)
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
 
-    if (!$request->user()->tokenCan('add-customer')) {
+    if (!$request->user()->tokenCan('worker_add-customer')) {
         $log_controller->save_log("worker", auth()->user()->worker_id, "Customers Worker", "Permission denined for trying to add customer");
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
     }
@@ -265,6 +267,343 @@ public function add_customer(Request $request)
         return response(["status" => "success", "message" => "Customer added successfully"]);
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE CURRENCIES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_currencies(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('worker_view-currencies')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Permission denined for trying to view all currencies");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Currencies Worker", "Fetching all currencies failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $currencies =  $currency_controller->get_all_currencies();
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $currencies]);
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION LETS YOU ADD RATES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function add_rate(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+    $rate_controller = new BureauRateController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_add-rate')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Permission denined for trying to add rate");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "currency_from_id" => "bail|required|integer",
+        "currency_to_id" => "bail|required|integer",
+        "rate" => "bail|required|regex:/[\d]{1,2}.[\d]{2}/",
+        "worker_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Addition of rate failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Addition of rate failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $currency_from = $currency_controller->get_currency("currency_id", $request->currency_from_id);
+    $currency_to = $currency_controller->get_currency("currency_id", $request->currency_to_id);
+    
+    if($currency_from[0]->currency_abbreviation == "" || $currency_to[0]->currency_abbreviation == ""){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Addition of rate failed because one of the currencies were not found in the database");
+        return response(["status" => "fail", "message" => "Currency not found"]);
+    }
+
+    $old_rate = BureauRate::where('bureau_rate_ext_id', '=', $rate_controller->make_rate_ext_id(auth()->user()->bureau_id, $currency_from[0]->currency_abbreviation, $currency_to[0]->currency_abbreviation))->first();
+
+    if (isset($old_rate->bureau_rate_id)) {
+        $log_text = "Rate updated. RATE-ID" . $old_rate->bureau_rate_ext_id . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", $log_text);
+        $rate_controller->update_rate(auth()->user()->bureau_id, $old_rate->bureau_rate_id, $old_rate->bureau_rate_ext_id, $old_rate->currency_from_id, $old_rate->currency_to_id, $request->rate, auth()->user()->worker_id);
+        return response(["status" => "success", "message" => "Rate updated successfully"]);
+    } else {
+        $log_text = "New rate added. CURRENCY-FROM: " . $currency_from[0]->currency_abbreviation . ". CURRENCY-TO: " . $currency_to[0]->currency_abbreviation . ". RATE: 1: " . $request->rate;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", $log_text);
+        $rate_controller->add_rate(auth()->user()->bureau_id, $currency_from[0]->currency_id, $currency_from[0]->currency_abbreviation, $currency_to[0]->currency_id, $currency_to[0]->currency_abbreviation, $request->rate, auth()->user()->worker_id);
+        return response(["status" => "success", "message" => "Rate added successfully"]);
+    }
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE RATES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_rates(Request $request)
+{
+    $log_controller = new LogController();
+    $rate_controller = new BureauRateController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-rates')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Permission denined for trying to view rates");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Fetching all rates failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+
+    $rates =  $rate_controller->get_all_rates(50);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $rates]);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION SEARCHES FOR RATES USING A KEYWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_rates(Request $request)
+{
+    $log_controller = new LogController();
+    $rate_controller = new BureauRateController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-rates')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Permission denined for trying to view rates");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Fetching all rates failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "kw" => "bail|required",
+    ]);
+
+    $like_keyword = '%' . $request->kw . '%';
+
+    $where_array = array(
+        ['currencies.currency_full_name', 'LIKE', $like_keyword],
+    ); 
+    $orwhere_array = array(
+        ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
+    ); 
+
+    $rates = $rate_controller->search_for_rates(50, $where_array, $orwhere_array);
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $rates, "kw" => $request->kw]);
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION LETS YOU ADD STOCKS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function add_currency_stock(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+    $currency_stock_controller = new CurrencyStockController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_add-rate')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Rates Worker", "Permission denined for trying to add stock");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "currency_id" => "bail|required|integer",
+        "stock" => "bail|required",
+        "worker_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Addition of stock failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Addition of stock failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $stock_currency = $currency_controller->get_currency("currency_id", $request->currency_id);
+    
+    if($stock_currency[0]->currency_abbreviation == ""){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Addition of stock failed because the currency was not found in the database");
+        return response(["status" => "fail", "message" => "Currency not found"]);
+    }
+
+    $old_stock = CurrencyStock::where('stock_ext_id', '=', $currency_stock_controller->make_stock_ext_id($stock_currency[0]->currency_abbreviation, auth()->user()->bureau_id))->first();
+
+    if (isset($old_stock->stock_id)) {
+        $log_text = "Stock updated. Stock-ID" . $old_stock->stock_ext_id . ". NEW STOCK: " . $stock_currency[0]->currency_abbreviation . $request->stock;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stock Worker", $log_text);
+        $currency_stock_controller->update_currency_stock($old_stock->stock_id, $request->stock, auth()->user()->worker_id);
+        return response(["status" => "success", "message" => "Stock updated successfully"]);
+    } else {
+        $log_text = "New stock added. CURRENCY: " . $stock_currency[0]->currency_abbreviation . ". STOCK: " . $request->stock;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stock Worker", $log_text);
+        $currency_stock_controller->add_currency_stock($stock_currency[0]->currency_id, $stock_currency[0]->currency_abbreviation, auth()->user()->bureau_id, $request->stock, auth()->user()->worker_id);
+        return response(["status" => "success", "message" => "Stock added successfully"]);
+    }
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE STOCKS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_stocks(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_stock_controller = new CurrencyStockController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-stocks')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stock Worker", "Permission denined for trying to view stocks");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Fetching all stocks failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+    $stocks =  $currency_stock_controller->get_currency_stocks(50);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $stocks]);
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION SEARCHES FOR STOCKS USING A KEYWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_stocks(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_stock_controller = new CurrencyStockController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-stocks')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Permission denined for trying to view stocks");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Stocks Worker", "Fetching all stocks failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "kw" => "bail|required",
+    ]);
+
+    $like_keyword = '%' . $request->kw . '%';
+
+    $where_array = array(
+        ['currencies.currency_full_name', 'LIKE', $like_keyword],
+    ); 
+    $orwhere_array = array(
+        ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
+    ); 
+
+    $stocks = $currency_stock_controller->search_for_currency_stocks(50, $where_array, $orwhere_array);
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $stocks, "kw" => $request->kw]);
+}
+
+
 
 
 
