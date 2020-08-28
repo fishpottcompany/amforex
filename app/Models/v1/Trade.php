@@ -3,12 +3,12 @@
 namespace App\Models\v1;
 
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Customer extends Authenticatable
+class Trade extends Model
 {
-
+    
     use HasApiTokens, Notifiable;
 
     /**
@@ -16,7 +16,7 @@ class Customer extends Authenticatable
      *
      * @var string
      */
-    protected $primaryKey = 'customer_id';
+    protected $primaryKey = 'trade_id';
 
     /**
      * The attributes that are mass assignable.
@@ -24,24 +24,22 @@ class Customer extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'customer_id', 
-        'customer_am_id_number',
-        'customer_surname', 
-        'customer_firstname', 
-        'customer_othernames', 
-        'customer_phone_number',
-        'customer_email',
-        'customer_nationality',
+        'trade_id', 
+        'trade_currency_in_id', 
+        'trade_currency_in_old_stock',
+        'trade_currency_in_new_stock',
+        'trade_currency_in_amount', 
+        'trade_currency_out_id', 
+        'trade_currency_out_old_stock',
+        'trade_currency_out_new_stock',
+        'trade_currency_out_amount', 
+        'trade_bureau_rate', 
+        'trade_bog_rate', 
+        'trade_flagged',
         'customer_id_1_id',
-        'customer_id_1_type',
-        'customer_id_1_number',
-        'customer_id_2_type',
-        'customer_id_2_number',
-        'customer_id_3_type',
-        'customer_id_3_number',
+        'branch_id',
         'bureau_id',
         'worker_id',
-        'customer_flagged',
         'created_at',
         'updated_at',
     ];

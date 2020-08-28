@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+
+    public function make_id_1_id($country, $id_type, $id_number)
+    {
+         $id = $country . "_" . $id_type . "_" . $id_number;
+         return str_replace(" ", "_", $id);
+    }
+
     public function add_customer($customer_amforex_id_number, $customer_surname, $customer_firstname, $customer_othernames, $customer_phone_number, $customer_email, $customer_nationality, $customer_id_1_type, $customer_id_1_number,  $worker_bureau_id, $user_id)
     {
         $customer = new Customer();
@@ -18,6 +25,7 @@ class CustomerController extends Controller
         $customer->customer_phone_number = $customer_phone_number;
         $customer->customer_email = $customer_email;
         $customer->customer_nationality = $customer_nationality;
+        $customer->customer_id_1_id = $this->make_id_1_id($customer_nationality, $customer_id_1_type, $customer_id_1_number);
         $customer->customer_id_1_type = $customer_id_1_type;
         $customer->customer_id_1_number = $customer_id_1_number;
         $customer->customer_flagged = false;

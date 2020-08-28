@@ -211,6 +211,8 @@ function search_for_stocks_success_response_function(response)
         
         for (let index = 0; index < response.data.data.length; index++) {
             const element = response.data.data[index];
+            show_log_in_console("element : " + index);
+            show_log_in_console(element);
             $('#table_body_list').append(
                 '<tr style="cursor: pointer;" class="rate">'
                 + '<td>' + element.stock_id + '</td>'
@@ -258,7 +260,7 @@ function search_for_stocks(url_fetch_type)
     } else if(url_fetch_type == 2){
         var url = document.getElementById("next_btn").getAttribute("data-link");
     } else {
-        var url = worker_api_rates_search_for_rates_url + document.getElementById("search_form_input").value;
+        var url = worker_api_stocks_search_for_stock_url + document.getElementById("search_form_input").value;
     }
     fade_in_loader_and_fade_out_form("loader", "search_form");     
     var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 

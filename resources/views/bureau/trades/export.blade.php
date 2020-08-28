@@ -1,22 +1,22 @@
-<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
-$active_page = "rates";
-$page_name = "Rates";
+$active_page = "currencies";
+$page_name = "Currencies";
 ?>
+<!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 @extends('layouts.app')
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
-<script src="/js/bureau/config.js"></script>
-<script src="/js/bureau/check_auth.js"></script>
-@endsection()
+<script src="/js/admin/config.js"></script>
+<script src="/js/admin/check_auth.js"></script>
+@endsection
 
 @section('navbar')
-  @include('bureau.navbar')
+  @include('admin.navbar')
 @endsection
 
 @section('left_side_bar')
-  @include('bureau.left_side_bar')
+  @include('admin.left_side_bar')
 @endsection
 
 <!-- SETTING THE CONTENT AS REQUIRED BY THE CORE STRUCTURE OF THE PAGE -->
@@ -27,46 +27,42 @@ $page_name = "Rates";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Transactions</h4>
-                      <p class="card-category">Search for a transaction</p>
+                      <h4 class="card-title">Currencies</h4>
+                      <p class="card-category">These are all the currencies that are set on the system. Click any list item to edit it.</p>
                     </div>
                     <div class="card-body table-responsive">
 
                     <form class="navbar-form" id="search_form">
                       <div class="input-group no-border">
-                        <input type="text" id="search_form_input" value="" class="form-control" placeholder="Search...">
+                        <input type="text" id="search_form_input" required="required" class="form-control" placeholder="Search...">
                         <button type="submit" class="btn btn-default btn-round btn-just-icon">
                           <i class="material-icons">search</i>
                           <div class="ripple-container"></div>
                         </button>
                       </div>
                     </form>
+
                       <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
                       </div>
+
                       <table class="table table-hover" id="list_table" style="display: none;">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
-                          <th class="font-weight-bold">From</th>
-                          <th class="font-weight-bold">To</th>
-                          <th class="font-weight-bold">Rate</th>
-                          <th class="font-weight-bold">Update-On</th>
+                          <th class="font-weight-bold">Name</th>
+                          <th class="font-weight-bold">Short-Name</th>
+                          <th class="font-weight-bold">Symbol</th>
+                          <th class="font-weight-bold">Updated-On</th>
+                          <th class="font-weight-bold">Tradable</th>
                           <th class="font-weight-bold">Administrator</th>
-                          <th class="font-weight-bold">New Rate</th>
                         </thead>
                         <tbody id="table_body_list">
                         </tbody>
                       </table>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4" id="pagination_buttons">
-                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/rates/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
-                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/rates/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
                 </div>
               </div>
             </div>
@@ -115,12 +111,12 @@ $page_name = "Rates";
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
-    <!-- MY CUSTOM SCRIPTS FOR bureau -->
-    <script src="/js/bureau/rates.js"></script>
+    <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
+    <script src="/js/admin/currencies.js"></script>
+    
     <script type="text/javascript">
-      get_rates_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
+      get_all_currencies();
     </script>
-  </body>
   </body>
   </html>
 @endsection

@@ -64,7 +64,7 @@ $page_name = "Customers";
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label class="bmd-label-floating">Customer Phone Number</label>
+                              <label class="bmd-label-floating">Customer Phone Number(Eg: +233244123456)</label>
                               <input type="text" name="customer_phone_number" maxlength="15" class="form-control" required="required" >
                             </div>
                           </div>
@@ -80,9 +80,10 @@ $page_name = "Customers";
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label for="customer_nationality">Nationality</label>    
-                              <select id="customer_nationality" class="form-control"  id="customer_nationality" name="customer_nationality"  required="required">
-                                  <option value="">Choose Customer Nationality Country</option>
+                              <label for="customer_nationality">Customer Nationality</label>    
+                              <select class="form-control"  id="customer_nationality" name="customer_nationality"  required="required">
+                                  <option value="">Choose Nationality</option>
+                                  <option value="Ghana">Ghana</option>
                                   <option value="Afghanistan">Afghanistan</option>
                                   <option value="Åland Islands">Åland Islands</option>
                                   <option value="Albania">Albania</option>
@@ -164,7 +165,6 @@ $page_name = "Customers";
                                   <option value="Gambia">Gambia</option>
                                   <option value="Georgia">Georgia</option>
                                   <option value="Germany">Germany</option>
-                                  <option value="Ghana">Ghana</option>
                                   <option value="Gibraltar">Gibraltar</option>
                                   <option value="Greece">Greece</option>
                                   <option value="Greenland">Greenland</option>
@@ -336,10 +336,10 @@ $page_name = "Customers";
                             <div class="form-group">
                               <label for="customer_id_1_type">ID Type</label>
                               <select name="customer_id_1_type" class="form-control" id="customer_id_1_type"  required="required">
-                                <option value="">Choose ID Type</option>
-                                <option value="">Driver's License</option>
-                                <option value="">Passport</option>
-                                <option value="">Voter ID</option>
+                                <option value="Name">Name</option>
+                                <option value="Driver's License">Driver's License</option>
+                                <option value="Passport">Passport</option>
+                                <option value="Voter ID">Voter ID</option>
                               </select>
                             </div>
                           </div>
@@ -414,7 +414,7 @@ $page_name = "Customers";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR ADMIN -->
-    <script src="/js/bureau/currencies.js"></script>
+    <script src="/js/bureau/customers.js"></script>
   </body>
   </html>
 @endsection

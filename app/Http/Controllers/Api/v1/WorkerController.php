@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Models\v1\Rate;
 use App\Models\v1\Worker;
+use App\Models\v1\Customer;
 use App\Models\v1\Passcode;
 use Illuminate\Http\Request;
-use App\Mail\bureau\PassCodeMail;
-use App\Http\Controllers\Controller;
 use App\Models\v1\BureauRate;
 use App\Models\v1\CurrencyStock;
-use App\Models\v1\Customer;
+use App\Mail\bureau\PassCodeMail;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -604,9 +605,233 @@ public function search_for_stocks(Request $request)
 }
 
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION LETS YOU ADD RATES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function add_trade(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_controller = new CurrencyController();
+    $rate_controller = new BureauRateController();
+    $bog_rate_controller = new RateController();
+    $customer_controller = new CustomerController();
+    $currency_stock_controller = new CurrencyStockController();
+    $trade_controller = new TradeController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_add-trade')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", "Permission denined for trying to add trade");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "customer_nation" => "bail|required|max:100",
+        "customer_id_type" => "bail|required|max:50",
+        "customer_id_number" => "bail|required|max:50",
+        "currency_in_id" => "bail|required|integer",
+        "currency_in_amount" => "bail|required|numeric|min:1",
+        "currency_out_id" => "bail|required|integer",
+        "worker_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", "Addition of trade failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", "Addition of trade failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $currency_in = $currency_controller->get_currency("currency_id", $request->currency_in_id);
+    $currency_out = $currency_controller->get_currency("currency_id", $request->currency_out_id);
+
+    
+    if($currency_in[0]->currency_abbreviation == "" || $currency_out[0]->currency_abbreviation == ""){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", "Addition of trade failed because one of the currencies were not found in the database");
+        return response(["status" => "fail", "message" => "Currency not found"]);
+    }
 
 
+    $currency_in_stock = $currency_stock_controller->get_currency_stock("stock_ext_id", $currency_stock_controller->make_stock_ext_id($currency_in[0]->currency_abbreviation, auth()->user()->bureau_id));
+    $currency_out_stock = $currency_stock_controller->get_currency_stock("stock_ext_id", $currency_stock_controller->make_stock_ext_id($currency_out[0]->currency_abbreviation, auth()->user()->bureau_id));
 
+
+    if(!isset($currency_in_stock[0]) || $currency_in_stock[0]->stock_ext_id == "" || !isset($currency_out_stock[0]) || $currency_out_stock[0]->stock_ext_id == ""){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", "Stock for the currencies was not found.");
+        return response(["status" => "fail", "message" => "Stock for the currencies was not found. Please check that all the stocks of the two currencies are set."]);
+    }
+
+
+    $where_array = array(
+        ['customer_nationality', '=', $request->customer_nation],
+        ['customer_id_1_id', '=', $customer_controller->make_id_1_id($request->customer_nation, $request->customer_id_type, $request->customer_id_number)],
+        ['customer_id_1_type', '=', $request->customer_id_type],
+        ['customer_id_1_number', '=', $request->customer_id_number],
+    ); 
+
+    if(!Customer::where($where_array)->exists()){
+        $log_text = "The customer does not exist. Please add the customer first before making the exchange.";
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", $log_text);
+        return response(["status" => "fail", "message" => $log_text]);
+    }
+
+    $old_rate = BureauRate::where('bureau_rate_ext_id', '=', $rate_controller->make_rate_ext_id(auth()->user()->bureau_id, $currency_out[0]->currency_abbreviation, $currency_in[0]->currency_abbreviation))->first();
+
+    $bog_rate = Rate::where('rate_ext_id', '=', $bog_rate_controller->make_rate_ext_id($currency_out[0]->currency_abbreviation, $currency_in[0]->currency_abbreviation))->first();
+
+    if(!isset($bog_rate->rate_id)){
+        $log_text = "Addition of trade failed because BANK OF GHANA has set no rate for a trade of " . $currency_in[0]->currency_full_name . "(IN) and " . $currency_out[0]->currency_full_name . "(OUT)";
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", $log_text);
+        return response(["status" => "fail", "message" => $log_text]);
+    }
+
+    if (!isset($old_rate->bureau_rate_id)) {
+        $log_text = "Addition of trade failed because no rate has been set for a trade of " . $currency_in[0]->currency_full_name . "(IN) and " . $currency_out[0]->currency_full_name . "(OUT)";
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", $log_text);
+        return response(["status" => "fail", "message" => $log_text]);
+    }
+
+    $outgoing_amount = $old_rate->rate * $request->currency_in_amount;
+    $currency_in_new_stock = $currency_in_stock[0]->stock + $request->currency_in_amount;
+    $currency_out_new_stock = $currency_out_stock[0]->stock - $outgoing_amount;
+    if($currency_out_new_stock < 0){
+        $log_text = "Insufficient " . $currency_out[0]->currency_full_name . " to perform trade. If there is more of it, please update it in currency stocks";
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades Worker", $log_text);
+        return response(["status" => "fail", "message" => $log_text]);
+    }
+/*
+    echo "\n trade_currency_in_id: " . $currency_in[0]->currency_id;
+    echo "\n trade_currency_in_old_stock: " . $currency_in_stock[0]->stock;
+    echo "\n trade_currency_in_new_stock: " . $currency_in_new_stock;
+    echo "\n trade_currency_in_amount: " . $request->currency_in_amount;
+    echo "\n trade_currency_out_id: " . $currency_out[0]->currency_id;
+    echo "\n trade_currency_out_old_stock: " . $currency_out_stock[0]->stock;
+    echo "\n trade_currency_out_new_stock: " . $currency_out_new_stock;
+    echo "\n trade_currency_out_amount: " . $outgoing_amount;
+    echo "\n trade_bureau_rate: " . $old_rate->rate;
+    echo "\n trade_bog_rate: " . $bog_rate->rate;
+    echo "\n trade_flagged: false";
+    echo "\n customer_id_1_id: " . $customer_controller->make_id_1_id($request->customer_nation, $request->customer_id_type, $request->customer_id_number);
+    echo "\n worker_id: " . auth()->user()->worker_id;
+    echo "\n branch_id: " . auth()->user()->branch_id;
+    echo "\n bureau_id: " . auth()->user()->bureau_id;
+*/
+
+    $currency_stock_controller->update_currency_stock($currency_in_stock[0]->stock_id, $currency_in_new_stock, auth()->user()->worker_id);
+
+    $currency_stock_controller->update_currency_stock($currency_out_stock[0]->stock_id, $currency_out_new_stock, auth()->user()->worker_id);
+
+    
+    $trade_controller->add_trade($currency_in[0]->currency_id, $currency_in_stock[0]->stock, $currency_in_new_stock, $request->currency_in_amount, $currency_out[0]->currency_id, $currency_out_stock[0]->stock, $currency_out_new_stock, $outgoing_amount, $old_rate->rate, $bog_rate->rate,
+                                false, $customer_controller->make_id_1_id($request->customer_nation, $request->customer_id_type, $request->customer_id_number), auth()->user()->worker_id,
+                                auth()->user()->branch_id, auth()->user()->bureau_id);
+                
+    $log_text = "Trade Completed. CURRENCY-IN-NAME" . $currency_in[0]->currency_full_name . ". CURRENCY-IN-AMOUNT: " . $request->currency_in_amount
+                . ". CURRENCY-OUT-NAME: " . $currency_out[0]->currency_full_name . ". CURRENCY-OUT-AMOUNT: " . $outgoing_amount
+                . ". BOG-RATE: " . $bog_rate->rate . ". B-RATE: " . $old_rate->rate . ". BUREAU-ID: " . auth()->user()->bureau_id
+                . ". BRANCH-ID: " . auth()->user()->branch_id . ". WORKER-ID: " . auth()->user()->worker_id;
+    $log_controller->save_log("worker", auth()->user()->worker_id, "Trades|Worker", $log_text);
+
+    $return_text = "Trade added successfully. PAY OUT: " . $currency_out[0]->currency_abbreviation  . strval(number_format($outgoing_amount));
+    return response(["status" => "success", "message" => $return_text]);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE TRADES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_trades(Request $request)
+{
+    $log_controller = new LogController();
+    $trade_controller = new TradeController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-trades')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades|Worker", "Permission denined for trying to view stocks");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades|Worker", "Fetching all trades failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+    $trades =  $trade_controller->get_trades(50);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $trades]);
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS SEARCHES FOR A LIST OF TRADES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function search_for_trades(Request $request)
+{
+    $log_controller = new LogController();
+    $currency_stock_controller = new CurrencyStockController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-trades')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades|Worker", "Permission denined for trying to view trades");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Trades|Worker", "Fetching all trades failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $like_keyword = '%' . $request->kw . '%';
+    
+    if(!isset($request->kw) && !isset($request->start_date)){
+        return response(["status" => "fail", "message" => "Enter a search keyword or a search start date"]);
+    }
+    
+    if(isset($request->kw)){
+        $where_array = array(
+            ['currencies.currency_full_name', 'LIKE', $like_keyword],
+        ); 
+        $orwhere_array = array(
+            ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
+        ); 
+    }
+
+    $stocks = $currency_stock_controller->search_for_currency_stocks(50, $where_array, $orwhere_array);
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $stocks, "kw" => $request->kw]);
+}
     
     public function save_worker($worker_surname, $worker_firstname, $worker_othernames, $worker_home_gps_address, $worker_home_location, $worker_position, $worker_scope, $worker_flagged, $worker_is_first, $worker_phone_number, $worker_email, $worker_pin, $password, $creator_user_type, $creator_id, $branch_id, $bureau_id)
     {        

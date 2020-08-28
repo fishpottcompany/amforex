@@ -653,7 +653,6 @@ public function add_bureau(Request $request)
         "worker_gps_address" => "bail|required|max:50",
         "worker_location" => "bail|required|max:300",
         "worker_position" => "bail|required|max:100",
-        "worker_scope" => "bail|required",
         "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
         "worker_email" => "bail|email|required|max:100",
         "admin_pin" => "bail|required|min:4|max:8"
@@ -662,6 +661,7 @@ public function add_bureau(Request $request)
     $validatedData["worker_pin"] = Hash::make(substr($request->bureau_tin,-4));
     $validatedData["password"] = bcrypt($request->bureau_tin);
     $validatedData["worker_flagged"] = false;
+    $validatedData["worker_scope"] = "add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate add-bureau view-bureaus get-one-bureau update-bureau";
     
     $old_bureau = Bureau::where('bureau_tin', '=', $validatedData["bureau_tin"])->first();
 

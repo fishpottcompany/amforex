@@ -11,62 +11,15 @@ $(document).ready(function ()
    $("#acform").submit(function (e) 
    { 
        e.preventDefault(); 
-       fade_in_loader_and_fade_out_form("loader", "acform");       
+       fade_in_loader_and_fade_out_form("loader", "acform");
        var form_data = $("#acform").serialize();
-       var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-       send_restapi_request_to_server_from_form("post", admin_api_currencies_add_currency_url, bearer, form_data, "json", add_currency_success_response_function, add_currency_error_response_function);
+       var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
+       show_log_in_console("bearer: " + bearer);
+       show_log_in_console("form_data: " + form_data);
+       show_log_in_console("worker_api_customers_add_customer_url: " + worker_api_customers_add_customer_url);
+       send_restapi_request_to_server_from_form("post", worker_api_customers_add_customer_url, bearer, form_data, "json", add_customer_success_response_function, add_customer_error_response_function);
    });
    
-/*
-|--------------------------------------------------------------------------
-| EDITING CURRENCY FUNCTION
-|--------------------------------------------------------------------------
-| WHEN THE EDIT CURRENCY FORM SUBMIT BUTTON IS CLICKED
-|--------------------------------------------------------------------------
-|
-*/
-    $("#ecform").submit(function (e) 
-    { 
-        e.preventDefault(); 
-        fade_in_loader_and_fade_out_form("loader", "ecform");       
-        var form_data = $("#ecform").serialize();
-        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-        send_restapi_request_to_server_from_form("post", admin_api_currencies_edit_currency_url, bearer, form_data, "json", edit_currency_success_response_function, edit_currency_error_response_function);
-    });
-
-
-/*
-|--------------------------------------------------------------------------
-| SEARCHING FOR CURRENCIES FUNCTION
-|--------------------------------------------------------------------------
-| WHEN THE SEARCH CURRENCY FORM SUBMIT BUTTON IS CLICKED
-|--------------------------------------------------------------------------
-|
-*/
-    $("#search_form").submit(function (e) 
-    { 
-        e.preventDefault(); 
-        fade_in_loader_and_fade_out_form("loader", "search_form");     
-        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
-        var url = admin_api_currencies_search_for_currencies_url + document.getElementById("search_form_input").value;
-        show_log_in_console("url: " + url);
-        send_restapi_request_to_server_from_form("get", url, bearer, "", "json", search_for_currencies_success_response_function, search_for_currencies_error_response_function);
-    });
-
-
-
-/*
-|--------------------------------------------------------------------------
-| WHEN A CURRENCY LIST ITEM IS CLICKED, WE SEND THEM TO THE EDIT PAGE.
-|--------------------------------------------------------------------------
-| FOR SOME REASON, I COULD NOT PUT AN <A> TAG DIRECTLY IN THE TABLE
-|--------------------------------------------------------------------------
-|
-*/
-    $(document).on('click', '.currency', function () {
-        show_log_in_console("url: " + (this).getAttribute("data-url"));
-        redirect_to_next_page((this).getAttribute("data-url"), true);
-    });
     
 });
 
@@ -84,14 +37,14 @@ $(document).ready(function ()
 |--------------------------------------------------------------------------
 |
 */
-function add_currency_success_response_function(response)
+function add_customer_success_response_function(response)
 {
-    show_notification("msg_holder", "success", "Success:", "Currency added successfully");
+    show_notification("msg_holder", "success", "Success:", "Customer added successfully");
     fade_out_loader_and_fade_in_form("loader", "acform"); 
     $('#acform')[0].reset();
 }
 
-function add_currency_error_response_function(errorThrown)
+function add_customer_error_response_function(errorThrown)
 {
     fade_out_loader_and_fade_in_form("loader", "acform"); 
     show_notification("msg_holder", "danger", "Error", errorThrown);

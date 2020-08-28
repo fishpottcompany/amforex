@@ -201,7 +201,7 @@ function search_for_rates(url_fetch_type)
 
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF ALL RATES RESPONSE FUNCTIONS
+| GETTING THE LIST OF ALL CURRENCIES RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |

@@ -139,10 +139,22 @@ Route::get('/bureau/trades/add', function () {
     return view('bureau/trades/add');
 });
 
+Route::get('/bureau/trades/edit', function () {
+    return view('bureau/trades/edit');
+});
 
 // TRANSACTIONS
 Route::get('/bureau/transactions/list', function () {
-    return view('bureau/transactions/list');
+    return view('bureau/trades/list');
+});
+
+Route::get('/bureau/transactions/import', function () {
+    return view('bureau/trades/import');
+});
+
+
+Route::get('/bureau/transactions/export', function () {
+    return view('bureau/trades/export');
 });
 
 

@@ -36,6 +36,12 @@ class CurrencyStockController extends Controller
     }
 
 
+    public function get_currency_stock($column_name, $column_value)
+    {
+        return  DB::table('currency_stocks')->where($column_name, '=', $column_value)->get();
+    }
+
+
     public function get_currency_stocks($pagination)
     {
         

@@ -24,6 +24,7 @@ class CreateCustomersTable extends Migration
             $table->string('customer_phone_number', 255)->unique();
             $table->string('customer_email', 255)->nullable();
             $table->string('customer_nationality', 255);
+            $table->string('customer_id_1_id', 255)->unique();
             $table->string('customer_id_1_type', 255);
             $table->string('customer_id_1_number', 255);
             $table->string('customer_id_2_type', 255)->nullable();

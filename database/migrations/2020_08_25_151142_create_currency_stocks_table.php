@@ -17,7 +17,7 @@ class CreateCurrencyStocksTable extends Migration
         Schema::create('currency_stocks', function (Blueprint $table) {
             $table->bigIncrements('stock_id');
             $table->string('stock_ext_id', 255)->unique();
-            $table->decimal('stock', 12, 2);
+            $table->decimal('stock');
             $table->timestamps();
         });
 

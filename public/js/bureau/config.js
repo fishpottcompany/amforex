@@ -32,7 +32,17 @@ var worker_api_rates_search_for_rates_url = `${host}/api/v1/bureau/rates/search/
 // STOCKS
 var worker_api_stocks_add_stock_url = `${host}/api/v1/bureau/stocks/add`;
 var worker_api_stocks_get_stocks_list_url = `${host}/api/v1/bureau/stocks/list/?page=`;
-var worker_api_stocks_search_for_stocks_url = `${host}/api/v1/bureau/stocks/search/?kw=`;
+var worker_api_stocks_search_for_stock_url = `${host}/api/v1/bureau/stocks/search/?kw=`;
+
+// CUSTOMER
+var worker_api_customers_add_customer_url = `${host}/api/v1/bureau/customers/add`;
+var worker_api_customers_search_for_customer_url = `${host}/api/v1/bureau/customers/search/?kw=`;
+
+// TRADES
+var worker_api_trades_add_trade_url = `${host}/api/v1/bureau/trades/add`;
+var worker_api_trades_get_trades_list_url = `${host}/api/v1/bureau/trades/list/?page=`;
+var worker_api_trades_search_for_trades_url = `${host}/api/v1/bureau/trades/search/?kw=`;
+
 
 
 var show_logging_in_console = true;
@@ -123,15 +133,26 @@ function show_notification(id, type, title, message)
 // SHOWING A LOADER AND DISAPPEARING FORM
 function fade_in_loader_and_fade_out_form(loader_id, form_id)
 {
-    $('#'+form_id).fadeOut();
-    $('#'+loader_id).fadeIn();
+    if(loader_id != ""){
+        $('#'+loader_id).fadeIn();
+    }
+
+    if(form_id != ""){
+        $('#'+form_id).fadeOut();        
+    }
 }
 
 // SHOWING A FORM AND DISAPPEARING LOADER
 function fade_out_loader_and_fade_in_form(loader_id, form_id)
 {
-    $('#'+loader_id).fadeOut();
-    $('#'+form_id).fadeIn();
+    if(loader_id != ""){
+        $('#'+loader_id).fadeOut();
+    }
+
+    if(form_id != ""){
+        $('#'+form_id).fadeIn();       
+    }
+
 }
 
 // SENDING USER TO NEW PAGE

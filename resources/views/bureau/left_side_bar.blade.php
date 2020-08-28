@@ -42,7 +42,8 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/list">Search</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/add">Import</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/export">Export</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/import">Import</a>
             </div>
           </li>       
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'customers'){ echo 'active'; } ?>">
