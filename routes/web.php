@@ -157,13 +157,21 @@ Route::get('/bureau/transactions/export', function () {
     return view('bureau/trades/export');
 });
 
-
-/*
-Route::get('/user', function () {
-    return view('user');
+Route::get('/bureau/transactions/export/pdf/{export_type}/{start_date}/{end_date}/{keyword}', function ($export_type, $start_date, $end_date, $keyword) {
+    return view('bureau/trades/export_pdf', ['export_type' => $export_type, 'start_date' => $start_date, 'end_date' => $end_date, 'keyword' => $keyword]);
 });
 
-Route::get('/', function () {
-    return view('welcome');
+
+// WORKERS
+Route::get('/bureau/workers/add', function () {
+    return view('bureau/workers/add');
 });
-*/
+
+Route::get('/bureau/workers/list', function () {
+    return view('bureau/workers/list');
+});
+
+//CHANGE PASSWORD
+Route::get('/bureau/security/change', function () {
+    return view('bureau/security/add');
+});

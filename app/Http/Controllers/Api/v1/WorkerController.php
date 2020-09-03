@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use DateTime;
 use App\Models\v1\Rate;
 use App\Models\v1\Worker;
 use App\Models\v1\Customer;
@@ -796,7 +797,7 @@ public function get_all_trades(Request $request)
 public function search_for_trades(Request $request)
 {
     $log_controller = new LogController();
-    $currency_stock_controller = new CurrencyStockController();
+    $trade_controller = new TradeController();
 
     if (!Auth::guard('worker')->check()) {
         return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
@@ -813,24 +814,66 @@ public function search_for_trades(Request $request)
         return response(["status" => "fail", "message" => "Account access restricted"]);
     }
 
-    $like_keyword = '%' . $request->kw . '%';
     
-    if(!isset($request->kw) && !isset($request->start_date)){
-        return response(["status" => "fail", "message" => "Enter a search keyword or a search start date"]);
-    }
-    
-    if(isset($request->kw)){
-        $where_array = array(
-            ['currencies.currency_full_name', 'LIKE', $like_keyword],
-        ); 
-        $orwhere_array = array(
-            ['currencies.currency_abbreviation', 'LIKE', $like_keyword],
-        ); 
+    if(!isset($request->kw) && !isset($request->start_date) && !isset($request->end_date)){
+        return response(["status" => "fail", "message" => "Enter a search keyword or a search start/end date"]);
     }
 
-    $stocks = $currency_stock_controller->search_for_currency_stocks(50, $where_array, $orwhere_array);
     
-    return response(["status" => "success", "message" => "Operation successful", "data" => $stocks, "kw" => $request->kw]);
+    $like_keyword = '%' . $request->kw . '%';
+    $where_array = [];
+    $orwhere_array = [];
+
+    if(isset($request->kw) && isset($request->search_with)){
+        if($request->search_with == "0"){
+            $where_array = array(
+                ['trades.trade_id', '=', $request->kw],
+            ); 
+        } else if($request->search_with == "1"){
+            $where_array = array(
+                ['currencies.currency_abbreviation', '=', $request->kw],
+            ); 
+        } else if($request->search_with == "2"){
+            $where_array = array(
+                ['trades.trade_currency_in_amount', '=', $request->kw],
+            ); 
+        } else if($request->search_with == "3"){
+            $where_array = array(
+                ['trades.trade_currency_out_amount', '=', $request->kw],
+            ); 
+        } else if($request->search_with == "4"){
+            $where_array = array(
+                ['customers.customer_id_1_number', 'LIKE', $like_keyword],
+            );
+        }
+    } else {
+        $request->kw = "";
+        $request->search_with = "";
+    }
+
+    if(isset($request->start_date)){
+        $request->validate([
+            "start_date" => "date_format:Y-m-d",
+        ]);
+        $stop_date = new DateTime($request->start_date);
+        $stop_date->modify('+1 day');
+        $request->start_date = $stop_date->format('Y-m-d');
+       $where_array[count($where_array)] = array('trades.created_at', '<=', $request->start_date);
+    }
+
+    if(isset($request->end_date)){
+        $request->validate([
+            "end_date" => "date_format:Y-m-d",
+        ]);
+        $where_array[count($where_array)] = ['trades.created_at', '>=', $request->end_date];
+    }
+
+    $search = "kw=" . $request->kw . "&start_date=" . $request->start_date . "&end_date=" . $request->end_date . "&search_with=" . $request->search_with;
+
+
+    $trades = $trade_controller->search_for_trades(50, $where_array, $orwhere_array);
+    
+    return response(["status" => "success", "message" => "Operation successful", "data" => $trades, "kw" => $search]);
 }
     
     public function save_worker($worker_surname, $worker_firstname, $worker_othernames, $worker_home_gps_address, $worker_home_location, $worker_position, $worker_scope, $worker_flagged, $worker_is_first, $worker_phone_number, $worker_email, $worker_pin, $password, $creator_user_type, $creator_id, $branch_id, $bureau_id)

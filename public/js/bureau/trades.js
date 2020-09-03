@@ -34,11 +34,129 @@ $(document).ready(function ()
        send_restapi_request_to_server_from_form("post", worker_api_trades_add_trade_url, bearer, form_data, "json", add_trade_success_response_function, add_trade_error_response_function);
    });
 
+   /*
+    |--------------------------------------------------------------------------
+    | SEARCHING FOR TRADES FUNCTION
+    |--------------------------------------------------------------------------
+    | WHEN THE SEARCH TRADES FORM SUBMIT BUTTON IS CLICKED
+    |--------------------------------------------------------------------------
+    |
+    */
+    $("#search_form").submit(function (e) 
+    { 
+        e.preventDefault(); 
+        search_for_trades(0);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORTING FOR TRADES FUNCTION
+    |--------------------------------------------------------------------------
+    | WHEN THE SEARCH TRADES FORM SUBMIT BUTTON IS CLICKED
+    |--------------------------------------------------------------------------
+    |
+    */
+   $("#exportform").submit(function (e) 
+   { 
+       e.preventDefault(); 
+       if(document.getElementById("export_format_type").value == "Excel"){
+
+       } else{
+        var url = worker_web_export_trades_as_pdf_page_url + $("#exportform").serialize();
+       }
+       fade_in_loader_and_fade_out_form("loader", "exportform");     
+       show_log_in_console("url: " + url);
+       //$('#table_body_list').append(
+
+      // );
+       
+   });
+
+
 });
 
 /*
 |--------------------------------------------------------------------------
-| ADDING RATE RESPONSE FUNCTIONS
+| SEARCHING FOR TRADES RESPONSE FUNCTIONS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+function search_for_trades_success_response_function(response)
+{
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+    if(response.data.data.length > 0){
+        if(response.data.prev_page_url != null){
+            $('#pagination_buttons').append(
+                '<a id="previous_btn" class="btn btn-default" data-link = "' + response.data.prev_page_url + '&' + response.kw + '" onclick="search_for_trades(1)"><i class="material-icons">keyboard_arrow_left</i></a>'
+            );
+        }
+        if(response.data.next_page_url != null){
+            $('#pagination_buttons').append(
+                '<a id="next_btn" class="btn btn-default" data-link = "' + response.data.next_page_url + '&' + response.kw + '" onclick="search_for_trades(2)"><i class="material-icons">keyboard_arrow_right</i></a>'
+            );
+        }
+        show_log_in_console("response.data.prev_page_url : " + response.data.prev_page_url);
+        show_log_in_console("response.data.next_page_url : " + response.data.next_page_url);
+        
+        for (let index = 0; index < response.data.data.length; index++) {
+            const element = response.data.data[index];
+            $('#table_body_list').append(
+                '<tr style="cursor: pointer;" class="rate">'
+                + '<td>' + element.trade_id + '</td>'
+                + '<td>' + element.currency_full_name + '</td>'
+                + '<td>' + element.trade_currency_in_amount + '</td>'
+                + '<td>' + element.trade_currency_out_full_name + '</td>'
+                +' <td>' + element.trade_currency_out_amount + '</td>'
+                + '<td>' + element.updated_at + '</td>'
+                + '<td>' + element.worker_surname + " " + element.worker_firstname + '</td>'
+                + '</tr>'
+            );
+        }
+    } else {
+        show_notification("msg_holder", "danger", "", "No trades found");
+    }
+}
+
+
+function search_for_trades_error_response_function(errorThrown)
+{
+    show_notification("msg_holder", "danger", "Error", errorThrown);
+    fade_out_loader_and_fade_in_form("loader", "search_form"); 
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEARCHING FOR TRADES FUNCTION
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+function search_for_trades(url_fetch_type)
+{
+    if(url_fetch_type == 1){
+        var url = document.getElementById("previous_btn").getAttribute("data-link");
+    } else if(url_fetch_type == 2){
+        var url = document.getElementById("next_btn").getAttribute("data-link");
+    } else {
+        var url = worker_api_trades_search_for_trades_url + $("#search_form").serialize();
+    }
+    fade_in_loader_and_fade_out_form("loader", "search_form");     
+    var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
+    document.getElementById("table_body_list").innerHTML = "";
+    document.getElementById("pagination_buttons").innerHTML = "";
+    show_log_in_console("url: " + url);
+    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", search_for_trades_success_response_function, search_for_trades_error_response_function);
+
+}
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| ADDING TRADE RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 | Here is where I add a currency
 |--------------------------------------------------------------------------
@@ -105,7 +223,7 @@ function get_all_currencies()
 
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF RATES FUNCTIONS
+| GETTING THE LIST OF TRADES FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -120,7 +238,7 @@ function get_trades_for_page(page_number)
 
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF STOCKS FOR A SPECIFIC PAGE RESPONSE FUNCTIONS
+| GETTING THE LIST OF TRADES FOR A SPECIFIC PAGE RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
@@ -140,7 +258,6 @@ function get_trades_for_page_success_response_function(response)
                 +' <td>' + element.trade_currency_out_amount + '</td>'
                 + '<td>' + element.updated_at + '</td>'
                 + '<td>' + element.worker_surname + " " + element.worker_firstname + '</td>'
-                //+ '<td><a href="' + host + '/bureau/transactions/edit/' + element.trade_id + '"><i class="material-icons">colorize</i></a></td>'
                 + '</tr>'
             );
             
@@ -155,3 +272,5 @@ function get_trades_for_page_error_response_function(errorThrown)
 {
     show_notification("msg_holder", "danger", "Error", errorThrown);
 }
+
+

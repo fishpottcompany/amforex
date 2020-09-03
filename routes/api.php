@@ -101,6 +101,8 @@ Route::middleware(['auth:worker', 'scope:worker_view-stocks'])->get('/v1/bureau/
 
 Route::middleware(['auth:worker', 'scope:worker_add-trade'])->post('/v1/bureau/trades/add', 'Api\v1\WorkerController@add_trade');
 
-Route::middleware(['auth:worker', 'scope:worker_view-rates'])->get('/v1/bureau/trades/list', 'Api\v1\WorkerController@get_all_trades');
+Route::middleware(['auth:worker', 'scope:worker_view-trades'])->get('/v1/bureau/trades/list', 'Api\v1\WorkerController@get_all_trades');
+
+Route::middleware(['auth:worker', 'scope:worker_view-trades'])->get('/v1/bureau/trades/search', 'Api\v1\WorkerController@search_for_trades');
 
 

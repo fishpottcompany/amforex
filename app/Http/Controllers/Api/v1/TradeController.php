@@ -42,7 +42,7 @@ class TradeController extends Controller
             ->join('currencies', 'trades.trade_currency_in_id', '=', 'currencies.currency_id')
             ->join('customers', 'trades.customer_id_1_id', '=', 'customers.customer_id_1_id')
             ->select('trades.*', 'workers.worker_surname', 'workers.worker_firstname', 'currencies.currency_full_name', 'customers.customer_surname', 'customers.customer_firstname')
-            ->orderBy('trade_id', 'desc')
+            ->orderBy('trades.trade_id', 'desc')
             ->simplePaginate($pagination);
 
         for ($i=0; $i < count($current_trades); $i++) { 
@@ -53,6 +53,45 @@ class TradeController extends Controller
         return $current_trades;
         
     }
+
+
+    public function search_for_trades($pagination, $where_array, $or_where_array)
+    {
+        $current_trades = null;
+
+        if(count($where_array) > 0){
+            $current_trades = DB::table('trades')
+                ->join('workers', 'trades.worker_id', '=', 'workers.worker_id')
+                ->join('currencies', 'trades.trade_currency_in_id', '=', 'currencies.currency_id')
+                ->join('customers', 'trades.customer_id_1_id', '=', 'customers.customer_id_1_id')
+                ->select('trades.*', 'workers.worker_surname', 'workers.worker_firstname', 'currencies.currency_full_name', 'customers.customer_surname', 'customers.customer_firstname')
+                ->where($where_array)
+                ->orWhere($or_where_array)
+                ->orderBy('trades.trade_id', 'desc')
+                ->simplePaginate($pagination);
+
+                for ($i=0; $i < count($current_trades); $i++) { 
+                    $this_currency = Currency::find($current_trades[$i]->trade_currency_out_id);
+                    $current_trades[$i]->trade_currency_out_full_name = $this_currency->currency_full_name;
+                }
+                
+            /*
+            $current_trades = DB::table('trades')
+                ->join('workers', 'trades.worker_id', '=', 'workers.worker_id')
+                ->join('currencies', 'trades.trade_currency_in_id', '=', 'currencies.currency_id')
+                ->join('customers', 'trades.customer_id_1_id', '=', 'customers.customer_id_1_id')
+                ->select('trades.*', 'workers.worker_surname', 'workers.worker_firstname', 'currencies.currency_full_name', 'customers.customer_surname', 'customers.customer_firstname')
+                ->where(array())
+                ->orderBy('trades.trade_id', 'desc')
+                ->simplePaginate($pagination);
+            
+            */
+        }
+
+        return $current_trades;
+        
+    }
+
 
 
 }

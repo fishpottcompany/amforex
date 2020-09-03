@@ -41,7 +41,8 @@ var worker_api_customers_search_for_customer_url = `${host}/api/v1/bureau/custom
 // TRADES
 var worker_api_trades_add_trade_url = `${host}/api/v1/bureau/trades/add`;
 var worker_api_trades_get_trades_list_url = `${host}/api/v1/bureau/trades/list/?page=`;
-var worker_api_trades_search_for_trades_url = `${host}/api/v1/bureau/trades/search/?kw=`;
+var worker_api_trades_search_for_trades_url = `${host}/api/v1/bureau/trades/search/?`;
+var worker_web_export_trades_as_pdf_page_url = `${host}/bureau/transactions/export/pdf/?`;
 
 
 

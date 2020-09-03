@@ -43,7 +43,7 @@
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/list">Search</a>
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/export">Export</a>
-              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/transactions/import">Import</a>
+              <!--<a class="dropdown-item text-dark my-0">Import</a>-->
             </div>
           </li>       
           <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'customers'){ echo 'active'; } ?>">
@@ -64,10 +64,15 @@
             <p>Workers</p>
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/rates/list">View Admins</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">Add Admin</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/rates/list">Edit Admin</a>
+            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/workers/add">View Workers</a>
+            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/workers/list">Add Admin</a>
           </div>
+        </li>
+        <li class="nav-item <?php if(isset($active_page) && $active_page == 'security'){ echo 'active'; } ?>">
+          <a class="nav-link" href="<?php echo url('/'); ?>/bureau/security/change">
+            <i class="material-icons">security</i>
+            <p>Change Password/PIN</p>
+          </a>
         </li>
         </ul>
       </div>
