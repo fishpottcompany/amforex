@@ -105,4 +105,13 @@ Route::middleware(['auth:worker', 'scope:worker_view-trades'])->get('/v1/bureau/
 
 Route::middleware(['auth:worker', 'scope:worker_view-trades'])->get('/v1/bureau/trades/search', 'Api\v1\WorkerController@search_for_trades');
 
+Route::middleware('auth:worker')->post('/v1/bureau/security/password/change', 'Api\v1\WorkerController@change_password');
+
+Route::middleware(['auth:worker', 'scope:worker_add-branch'])->post('/v1/bureau/branches/add', 'Api\v1\WorkerController@add_branch');
+
+Route::middleware(['auth:worker', 'scope:worker_view-branches'])->get('/v1/bureau/branches/list', 'Api\v1\WorkerController@get_all_branches');
+
+Route::middleware(['auth:worker', 'scope:worker_add-worker'])->post('/v1/bureau/workers/add', 'Api\v1\WorkerController@add_worker');
+
+
 

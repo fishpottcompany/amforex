@@ -58,20 +58,26 @@
               <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/customers/add">Add Customer</a>
             </div>
           </li>
-        <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'administrators'){ echo 'active'; } ?>">
-          <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="material-icons">admin_panel_settings</i>
-            <p>Workers</p>
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/workers/add">View Workers</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/workers/list">Add Admin</a>
-          </div>
-        </li>
+          <li class="nav-item <?php if(isset($active_page) && $active_page == 'branches'){ echo 'active'; } ?>">
+            <a class="nav-link" href="<?php echo url('/'); ?>/bureau/branches/add">
+              <i class="material-icons">store</i>
+              <p>Add Branches</p>
+            </a>
+          </li>
+          <li class="nav-item dropdown <?php if(isset($active_page) && $active_page == 'workers'){ echo 'active'; } ?>">
+            <a class="nav-link" href="javscript:void(0)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="material-icons">admin_panel_settings</i>
+              <p>Workers</p>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/bureau/workers/list">View Workers</a>
+              <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/bureau/workers/add">Add worker</a>
+            </div>
+          </li>
         <li class="nav-item <?php if(isset($active_page) && $active_page == 'security'){ echo 'active'; } ?>">
           <a class="nav-link" href="<?php echo url('/'); ?>/bureau/security/change">
             <i class="material-icons">security</i>
-            <p>Change Password/PIN</p>
+            <p>Change Password</p>
           </a>
         </li>
         </ul>

@@ -16,7 +16,9 @@ class CreateBranchesTable extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->bigIncrements('branch_id');
-            $table->string('branch_gps_location', 255)->unique();
+            $table->string('branch_ext_id', 255)->unique();
+            $table->string('branch_name', 255);
+            $table->string('branch_gps_location', 255);
             $table->longText('branch_address');
             $table->string('branch_phone_1', 255);
             $table->string('branch_phone_2', 255)->nullable();

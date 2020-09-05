@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\v1;
 
 use DateTime;
 use App\Models\v1\Rate;
+use App\Models\v1\Branch;
+use App\Models\v1\Bureau;
 use App\Models\v1\Worker;
 use App\Models\v1\Customer;
 use App\Models\v1\Passcode;
@@ -605,6 +607,43 @@ public function search_for_stocks(Request $request)
     return response(["status" => "success", "message" => "Operation successful", "data" => $stocks, "kw" => $request->kw]);
 }
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE BRANCHES
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_branches(Request $request)
+{
+    $log_controller = new LogController();
+    $branch_controller = new BranchController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('worker_view-branches')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Permission denined for trying to view all branches");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Fetching all branches failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $where_array = array(
+        ['.bureau_id', '=', auth()->user()->bureau_id],
+    ); 
+
+    $branches =  $branch_controller->get_all_branches($where_array);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $branches]);
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -875,10 +914,223 @@ public function search_for_trades(Request $request)
     
     return response(["status" => "success", "message" => "Operation successful", "data" => $trades, "kw" => $search]);
 }
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION CHANGES A WORKERS PASSWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function change_password(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Security|Worker", "Change password failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
     
+    $request->validate([
+        "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "current_password" => "bail|required|min:8|max:30",
+        "password" => "bail|required|confirmed|min:8|max:30",
+        "worker_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (!Hash::check(request()->current_password, auth()->user()->password)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Security|Worker", "Change password failed because of incorrect current password");
+        return response(["status" => "fail", "message" => "Incorrect password."]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Security|Worker", "Change password failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $worker = Worker::where('worker_phone_number', auth()->user()->worker_phone_number)->first();
+
+
+    if ($worker != null && $worker->worker_phone_number == $request->worker_phone_number) {
+        $worker->password =  bcrypt($request->password);
+        $worker->save();
+        $userTokens =  auth()->user()->tokens;
+        foreach($userTokens as $token) {
+            $token->revoke();   
+        }
+        $log_controller->save_log("worker", $request->worker_phone_number, "Security|Worker", "Password changed");
+        return response(["status" => "success", "message" => "Password changed successfully."]);
+    } else {
+        return response(["status" => "fail", "message" => "Failed to validate operation."]);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION LETS YOU ADD BRANCH
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+
+public function add_branch(Request $request)
+{
+    $log_controller = new LogController();
+    $branch_controller = new BranchController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_add-branch')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Permission denined for trying to add branch");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+
+    $request->validate([
+        "branch_name" => "bail|required|max:100",
+        "branch_gps_location" => "bail|required|max:50",
+        "branch_address" => "bail|required|max:300",
+        "branch_phone_1" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "branch_phone_2" => "bail|max:10",
+        "branch_email_1" => "bail|email|required|max:100",
+        "branch_email_2" => "bail|max:100",
+        "worker_pin" => "bail|required|min:4|max:8"
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Addition of branch failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Addition of branch failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $bureau = Bureau::where('bureau_id', '=', auth()->user()->bureau_id)->first();
+
+    if(!isset($bureau->bureau_id) || !isset($bureau->bureau_tin)){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Addition of branch failed because of worker's bureau was not found");
+        return response(["status" => "fail", "message" => "Bureau not found."]);
+    }
+    
+    $branch = Branch::where('branch_ext_id', '=', $branch_controller->make_branch_ext_id($request->branch_gps_location, $bureau->bureau_tin, $request->branch_phone_1))->first();
+    
+    if(!isset($branch->branch_id)){
+        $branch_controller->save_branch($request->branch_name, $bureau->bureau_tin, $request->branch_gps_location, $request->branch_address,
+        $request->branch_phone_1, $request->branch_phone_2, $request->branch_email_1, $request->branch_email_2, 
+        "worker", auth()->user()->worker_id, false, false, $bureau->bureau_id);
+        return response(["status" => "success", "message" => "Branch added successfully"]);
+    } else {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Branches|Worker", "Addition of branch failed because branch exists");
+        return response(["status" => "fail", "message" => "Branch already exists."]);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION LETS YOU ADD STOCKS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+
+public function add_worker(Request $request)
+{
+    $log_controller = new LogController();
+    $worker_controller = new WorkerController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_add-worker')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Permission denined for trying to add stock");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "branch_id" => "bail|required|integer",
+        "worker_surname" => "bail|required|max:55",
+        "worker_firstname" => "bail|required|max:55",
+        "worker_othernames" => "bail|max:55",
+        "worker_gps_address" => "bail|required|max:50",
+        "worker_location" => "bail|required|max:300",
+        "worker_position" => "bail|required|max:100",
+        "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "worker_email" => "bail|email|required|max:100",
+        "worker_flagged" => "bail|required|boolean",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_pin" => "bail|required|min:4|max:8"
+    ]);
+
+    
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Addition of worker failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->worker_pin, auth()->user()->worker_pin)) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Addition of worker failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $branch = Branch::find($request->branch_id);
+    
+    if(!isset($branch->bureau_id) || $branch->bureau_id != auth()->user()->bureau_id){
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Branch not found");
+        return response(["status" => "fail", "message" => "Branch not found"]);
+    }
+
+    $thisworker = Worker::find($this->make_worker_ext_id(auth()->user()->bureau_id, auth()->user()->branch_id, auth()->user()->worker_phone_number));
+    
+
+    if (isset($thisworker->worker_id)) {
+        $worker_controller->update_worker($thisworker->worker_id, $request->worker_surname,  $request->worker_firstname, $request->worker_othernames
+        , worker_gps_address, worker_location, worker_position, worker_flagged, );
+        
+        $log_text = "Worker updated. Worker-ID" . $thisworker->worker_id . ". Worker Name: " . $thisworker->worker_firstname . " " . $thisworker->worker_surname;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", $log_text);
+        return response(["status" => "success", "message" => "Worker updated successfully"]);
+    } else {
+        //$worker_controller->save_worker(auth()->user()->bureau_id, $request->stock, auth()->user()->worker_id);
+        $log_text = "New worker added. Worker name: " . $request->worker_surname . " " . $request->worker_firstname . ". Bureau ID: " . auth()->user()->bureau_id;
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", $log_text);
+        return response(["status" => "success", "message" => "Worker added successfully"]);
+    }
+}
+
+
+
+    public function make_worker_ext_id($bureau_id, $branch_id, $worker_phone_number)
+    {
+        return $bureau_id . "_" . $branch_id . "_" . $worker_phone_number;
+    }
+
     public function save_worker($worker_surname, $worker_firstname, $worker_othernames, $worker_home_gps_address, $worker_home_location, $worker_position, $worker_scope, $worker_flagged, $worker_is_first, $worker_phone_number, $worker_email, $worker_pin, $password, $creator_user_type, $creator_id, $branch_id, $bureau_id)
     {        
         $worker = new Worker();
+        $worker->worker_ext_id = $this->make_worker_ext_id($bureau_id, $branch_id, $worker_phone_number); 
         $worker->worker_surname = $worker_surname; 
         $worker->worker_firstname = $worker_firstname;
         $worker->worker_othernames = $worker_othernames;

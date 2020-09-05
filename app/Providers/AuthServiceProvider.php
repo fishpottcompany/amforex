@@ -57,12 +57,17 @@ class AuthServiceProvider extends ServiceProvider
             'worker_add-trade' => 'Add trade',
             'worker_edit-trade' => 'Add trade',
             'worker_view-trades' => 'View trades',
+            'worker_add-branch' => 'Add branch',
+            'worker_view-branches' => 'View branches',
+            'worker_add-worker' => 'Add worker',
+            'worker_view-workers' => 'View workers',
+            'worker_edit-worker' => 'Edit worker',
 
         ]);
         
     }
 
-    // worker_add-customer worker_view-customer worker_get-one-customer worker_view-currencies worker_add-rate worker_view-rates worker_get-one-rate worker_update-rate worker_view-stocks worker_add-stock worker_add-trade worker_edit-trade worker_view-trades
+    // worker_add-customer worker_view-customer worker_get-one-customer worker_view-currencies worker_add-rate worker_view-rates worker_get-one-rate worker_update-rate worker_view-stocks worker_add-stock worker_add-trade worker_edit-trade worker_view-trades worker_add-branch worker_view-branches worker_add-worker worker_view-workers worker_edit-worker
     
     //// add-currency view-currencies get-one-currency update-currency add-rate view-rates get-one-rate update-rate add-bureau view-bureaus get-one-bureau update-bureau
 }

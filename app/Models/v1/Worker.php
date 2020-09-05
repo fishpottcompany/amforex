@@ -32,6 +32,7 @@ class Worker extends Authenticatable
      */
     protected $fillable = [
         'worker_id', 
+        'worker_ext_id',
         'worker_surname', 
         'worker_firstname', 
         'worker_othernames', 

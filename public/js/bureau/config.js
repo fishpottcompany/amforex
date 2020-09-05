@@ -44,6 +44,17 @@ var worker_api_trades_get_trades_list_url = `${host}/api/v1/bureau/trades/list/?
 var worker_api_trades_search_for_trades_url = `${host}/api/v1/bureau/trades/search/?`;
 var worker_web_export_trades_as_pdf_page_url = `${host}/bureau/transactions/export/pdf/?`;
 
+// SECURITY
+var worker_api_security_change_password_url = `${host}/api/v1/bureau/security/password/change`;
+
+// BRANCHES
+var worker_api_branches_add_branch_url = `${host}/api/v1/bureau/branches/add`;
+var worker_api_branches_get_branches_list_url = `${host}/api/v1/bureau/branches/list`;
+
+
+// WORKERS
+var worker_api_branches_add_branch_url = `${host}/api/v1/bureau/branches/add`;
+
 
 
 var show_logging_in_console = true;

@@ -171,6 +171,12 @@ Route::get('/bureau/workers/list', function () {
     return view('bureau/workers/list');
 });
 
+// BRANCHES
+Route::get('/bureau/branches/add', function () {
+    return view('bureau/branches/add');
+});
+
+
 //CHANGE PASSWORD
 Route::get('/bureau/security/change', function () {
     return view('bureau/security/add');

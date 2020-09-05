@@ -16,6 +16,7 @@ class CreateWorkersTable extends Migration
     {
         Schema::create('workers', function (Blueprint $table) {
             $table->bigIncrements('worker_id');
+            $table->string('worker_ext_id', 255)->unique();
             $table->string('worker_surname', 255);
             $table->string('worker_firstname', 255);
             $table->string('worker_othernames', 255)->nullable();
@@ -23,7 +24,7 @@ class CreateWorkersTable extends Migration
             $table->longText('worker_home_location');
             $table->string('worker_position', 255);
             $table->longText('worker_scope');
-            $table->string('worker_phone_number', 255)->unique();
+            $table->string('worker_phone_number', 255);
             $table->string('worker_email', 255)->unique();
             $table->string('worker_pin', 255);
             $table->string('password', 255);

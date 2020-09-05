@@ -677,14 +677,14 @@ public function add_bureau(Request $request)
          $validatedData["bureau_email_2"], false, auth()->user()->admin_id);
     }
     
-    $old_branch = Branch::where('branch_gps_location', '=', $validatedData["bureau_hq_gps_address"])->first();
+    $old_branch = Branch::where('branch_ext_id', '=', $branch_controller->make_branch_ext_id($validatedData["bureau_hq_gps_address"], $validatedData["bureau_tin"], $validatedData["bureau_phone_1"]))->first();
     
     if(isset($old_branch->branch_id)){
         $branch = $branch_controller->update_branch($old_branch->bureau_id, $validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
         $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], $validatedData["bureau_email_2"], 
         "admin", auth()->user()->admin_id, false, $bureau->bureau_id);
     } else {
-        $branch = $branch_controller->save_branch($validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
+        $branch = $branch_controller->save_branch("Head Office", $validatedData["bureau_tin"], $validatedData["bureau_hq_gps_address"], $validatedData["bureau_hq_location"],
         $validatedData["bureau_phone_1"], $validatedData["bureau_phone_2"], $validatedData["bureau_email_1"], $validatedData["bureau_email_2"], 
         "admin", auth()->user()->admin_id, false, true, $bureau->bureau_id);
     }

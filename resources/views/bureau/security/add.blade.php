@@ -27,8 +27,8 @@ $page_name = "Security";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Change Password & Pin</h4>
-                      <p class="card-category">Change your password or pin. Leave PIN/Password empty if you do not wish to change it</p>
+                      <h4 class="card-title">Change Password</h4>
+                      <p class="card-category">Enter a new password.</p>
                     </div>
                     <div class="card-body">
                       <div class="row" style="display: none" id="loader">
@@ -36,12 +36,36 @@ $page_name = "Security";
                           <div class="dot-spin"></div>
                         </div>
                       </div>
-                      <form id="arform" style="display: none">
+                      <form id="form">
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label class="bmd-label-floating">Stock</label>
-                              <input type="text" id="rate" maxlength="12" name="stock" class="form-control" required="required">
+                              <label class="bmd-label-floating">Phone Number On Account</label>
+                              <input type="text" id="phone_number" minlength="10" maxlength="10" name="worker_phone_number" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Current Password</label>
+                              <input type="password" id="password" minlength="5" maxlength="30" name="current_password" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">New Password</label>
+                              <input type="password" id="password" minlength="5" maxlength="30" name="password" class="form-control" required="required">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Confirm New Password</label>
+                              <input type="password" id="password_confirmation" minlength="5" maxlength="30" name="password_confirmation" class="form-control" required="required">
                             </div>
                           </div>
                         </div>
@@ -53,7 +77,7 @@ $page_name = "Security";
                             </div>
                           </div>
                         </div>
-                        <span id="submit_button_add_rate_form"></span>
+                        <button type="submit" class="btn btn-primary pull-right">Change</button>
                         <div class="clearfix"></div>
                       </form>
                     </div>
@@ -107,7 +131,7 @@ $page_name = "Security";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR bureau -->
-    <script src="/js/bureau/stocks.js"></script>
+    <script src="/js/bureau/security.js"></script>
   </body>
   </body>
   </html>
