@@ -16,7 +16,7 @@ $(document).ready(function ()
        var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
        show_log_in_console("form_data: " + form_data);
        
-       send_restapi_request_to_server_from_form("post", worker_api_branches_add_branch_url, bearer, form_data, "json", add_branch_success_response_function, add_branch_error_response_function);
+       send_restapi_request_to_server_from_form("post", worker_api_workers_add_worker_url, bearer, form_data, "json", add_worker_success_response_function, add_worker_error_response_function);
    });
    
     
@@ -36,14 +36,14 @@ $(document).ready(function ()
 |--------------------------------------------------------------------------
 |
 */
-function add_branch_success_response_function(response)
+function add_worker_success_response_function(response)
 {
-    show_notification("msg_holder", "success", "Success:", "Branch added successfully");
+    show_notification("msg_holder", "success", "Success:", response.message);
     fade_out_loader_and_fade_in_form("loader", "form"); 
     $('#form')[0].reset();
 }
 
-function add_branch_error_response_function(errorThrown)
+function add_worker_error_response_function(errorThrown)
 {
     fade_out_loader_and_fade_in_form("loader", "form"); 
     show_notification("msg_holder", "danger", "Error", errorThrown);
@@ -67,7 +67,7 @@ function get_all_branches_success_response_function(response)
                 '<option value="' + element.branch_id + '">' + element.branch_name + '</option>'
             );
         }
-        $('#submit_button_add_rate_form').append(
+        $('#submit_button_form').append(
             '<button type="submit" class="btn btn-primary pull-right">Add</button>'
         );
     } else {

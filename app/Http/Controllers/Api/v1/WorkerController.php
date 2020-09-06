@@ -1062,6 +1062,8 @@ public function add_worker(Request $request)
 
     $request->validate([
         "branch_id" => "bail|required|integer",
+        "new_worker_pin" => "bail|nullable|min:4|max:8",
+        "password" => "bail|nullable|min:8|max:30",
         "worker_surname" => "bail|required|max:55",
         "worker_firstname" => "bail|required|max:55",
         "worker_othernames" => "bail|max:55",
@@ -1070,17 +1072,37 @@ public function add_worker(Request $request)
         "worker_position" => "bail|required|max:100",
         "worker_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
         "worker_email" => "bail|email|required|max:100",
-        "worker_flagged" => "bail|required|boolean",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
-        "worker_pin" => "bail|required|min:4|max:8",
+        "worker_flagged" => "bail|required|integer",
+        "worker_add_customer" => "bail|nullable|regex:(worker_add-customer)",
+        "worker_view_customers" => "bail|nullable|regex:(worker_view-customers)",
+        "worker_get_one_customer" => "bail|nullable|regex:(worker_get-one-customer)",
+        "worker_view_currencies" => "bail|nullable|regex:(worker_view-currencies)",
+        "worker_add_rate" => "bail|nullable|regex:(worker_add-rate)",
+        "worker_view_rates" => "bail|nullable|regex:(worker_view-rates)",
+        "worker_get_one_rate" => "bail|nullable|regex:(worker_get-one-rate)",
+        "worker_update_rate" => "bail|nullable|regex:(worker_update-rate)",
+        "worker_add_stock" => "bail|nullable|regex:(worker_add-stock)",
+        "worker_view_stocks" => "bail|nullable|regex:(worker_view-stocks)",
+        "worker_add_trade" => "bail|nullable|regex:(worker_add-trade)",
+        "worker_view_trades" => "bail|nullable|regex:(worker_view-trades)",
+        "worker_add_branch" => "bail|nullable|regex:(worker_add-branch)",
+        "worker_view_branches" => "bail|nullable|regex:(worker_view-branches)",
+        "worker_add_worker" => "bail|nullable|regex:(worker_add-worker)",
+        "worker_view_workers" => "bail|nullable|regex:(worker_view-workers)",
+        "worker_edit_worker" => "bail|nullable|regex:(worker_edit-worker)",
         "worker_pin" => "bail|required|min:4|max:8"
     ]);
+    
+
+    $request->worker_scope = $request->worker_add_customer . " " . $request->worker_view_customer
+                            . " " . $request->worker_get_one_customer . " " . $request->worker_view_currencies
+                            . " " . $request->worker_add_rate . " " . $request->worker_view_rates
+                            . " " . $request->worker_get_one_rate . " " . $request->worker_update_rate
+                            . " " . $request->worker_add_stock . " " . $request->worker_view_stocks
+                            . " " . $request->worker_add_trade . " " . $request->worker_view_trades
+                            . " " . $request->worker_add_branch . " " . $request->worker_view_branches
+                            . " " . $request->worker_add_worker . " " . $request->worker_view_workers
+                            . " " . $request->worker_edit_worker;
 
     
 
@@ -1102,18 +1124,47 @@ public function add_worker(Request $request)
         return response(["status" => "fail", "message" => "Branch not found"]);
     }
 
-    $thisworker = Worker::find($this->make_worker_ext_id(auth()->user()->bureau_id, auth()->user()->branch_id, auth()->user()->worker_phone_number));
-    
+    $thisworker = Worker::where('worker_ext_id', '=', $this->make_worker_ext_id(auth()->user()->bureau_id, auth()->user()->branch_id, $request->worker_phone_number))->first();
 
     if (isset($thisworker->worker_id)) {
+
+        if(!isset($request->new_worker_pin) || $request->new_worker_pin == null  || trim($request->new_worker_pin) == ""){
+            $request->new_worker_pin = $thisworker->worker_pin;
+        } else {
+            $request->new_worker_pin = Hash::make(substr($request->new_worker_pin,-4));
+        }
+    
+        if(!isset($request->password) || $request->password == null || trim($request->password) == ""){
+            $request->password = $thisworker->password;
+        } else {
+            $request->password = bcrypt($request->password);
+        }  
+
         $worker_controller->update_worker($thisworker->worker_id, $request->worker_surname,  $request->worker_firstname, $request->worker_othernames
-        , worker_gps_address, worker_location, worker_position, worker_flagged, );
+        , $request->worker_gps_address, $request->worker_location, $request->worker_position, $request->worker_scope, $request->worker_flagged, $request->worker_phone_number,
+        $request->worker_email, $request->new_worker_pin, $request->password, "worker", auth()->user()->worker_id, auth()->user()->branch_id, auth()->user()->bureau_id);
         
         $log_text = "Worker updated. Worker-ID" . $thisworker->worker_id . ". Worker Name: " . $thisworker->worker_firstname . " " . $thisworker->worker_surname;
         $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", $log_text);
         return response(["status" => "success", "message" => "Worker updated successfully"]);
     } else {
-        //$worker_controller->save_worker(auth()->user()->bureau_id, $request->stock, auth()->user()->worker_id);
+
+        if(!isset($request->new_worker_pin) || trim($request->new_worker_pin) == ""){
+            $request->new_worker_pin = Hash::make(substr($request->worker_phone_number,-4));
+        } else {
+            $request->new_worker_pin = Hash::make(substr($request->new_worker_pin,-4));
+        }
+    
+        if(!isset($request->password) || trim($request->password) == ""){
+            $request->password = bcrypt($request->worker_phone_number);
+        } else {
+            $request->password = bcrypt($request->password);
+        }  
+        
+        $worker_controller->save_worker($request->worker_surname,  $request->worker_firstname, $request->worker_othernames
+        , $request->worker_gps_address, $request->worker_location, $request->worker_position, $request->worker_scope, $request->worker_flagged, false, $request->worker_phone_number,
+        $request->worker_email, $request->new_worker_pin, $request->password, "worker", auth()->user()->worker_id, auth()->user()->branch_id, auth()->user()->bureau_id);
+    
         $log_text = "New worker added. Worker name: " . $request->worker_surname . " " . $request->worker_firstname . ". Bureau ID: " . auth()->user()->bureau_id;
         $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", $log_text);
         return response(["status" => "success", "message" => "Worker added successfully"]);
@@ -1124,7 +1175,7 @@ public function add_worker(Request $request)
 
     public function make_worker_ext_id($bureau_id, $branch_id, $worker_phone_number)
     {
-        return $bureau_id . "_" . $branch_id . "_" . $worker_phone_number;
+        return $bureau_id . "_" . $worker_phone_number;
     }
 
     public function save_worker($worker_surname, $worker_firstname, $worker_othernames, $worker_home_gps_address, $worker_home_location, $worker_position, $worker_scope, $worker_flagged, $worker_is_first, $worker_phone_number, $worker_email, $worker_pin, $password, $creator_user_type, $creator_id, $branch_id, $bureau_id)
@@ -1156,6 +1207,7 @@ public function add_worker(Request $request)
     public function update_worker($worker_id, $worker_surname, $worker_firstname, $worker_othernames, $worker_home_gps_address, $worker_home_location, $worker_position, $worker_scope, $worker_flagged, $worker_phone_number, $worker_email, $worker_pin, $password, $creator_user_type, $creator_id, $branch_id, $bureau_id)
     {
         $worker = Worker::find($worker_id);
+        $worker->worker_ext_id = $this->make_worker_ext_id($bureau_id, $branch_id, $worker_phone_number); 
         $worker->worker_surname = $worker_surname; 
         $worker->worker_firstname = $worker_firstname;
         $worker->worker_othernames = $worker_othernames;

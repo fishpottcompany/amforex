@@ -53,7 +53,7 @@ var worker_api_branches_get_branches_list_url = `${host}/api/v1/bureau/branches/
 
 
 // WORKERS
-var worker_api_branches_add_branch_url = `${host}/api/v1/bureau/branches/add`;
+var worker_api_workers_add_worker_url = `${host}/api/v1/bureau/workers/add`;
 
 
 

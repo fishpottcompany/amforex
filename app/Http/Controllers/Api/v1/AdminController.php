@@ -689,8 +689,8 @@ public function add_bureau(Request $request)
         "admin", auth()->user()->admin_id, false, true, $bureau->bureau_id);
     }
     
-    $old_worker = Worker::where('worker_phone_number', '=', $validatedData["worker_phone_number"])->first();
-    
+    $old_worker = Worker::where('worker_ext_id', '=', $worker_controller->make_worker_ext_id($bureau->bureau_id, $branch->branch_id,  $validatedData["worker_phone_number"]))->first();
+     
     if(isset($old_worker->worker_id)){
         $worker_controller->update_worker($old_worker->worker_id, $validatedData["worker_surname"], $validatedData["worker_firstname"], $validatedData["worker_othernames"],
         $validatedData["worker_gps_address"], $validatedData["worker_location"], $validatedData["worker_position"], $validatedData["worker_scope"], 
