@@ -79,6 +79,11 @@ Route::get('/admin/bureaus/edit/{id}', function ($id) {
     return view('admin/bureaus/edit', ['bureau_id' => $id]);
 });
 
+//CHANGE PASSWORD
+Route::get('/admin/security/change', function () {
+    return view('admin/security/add');
+});
+
 
 /*
 |--------------------------------------------------------------------------

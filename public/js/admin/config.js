@@ -44,6 +44,9 @@ var admin_api_bureaus_search_for_bureaus_url = `${host}/api/v1/admin/bureaus/sea
 var admin_api_bureaus_edit_bureau_url = `${host}/api/v1/admin/bureaus/add`;
 var admin_api_bureaus_get_one_bureau_url = `${host}/api/v1/admin/bureaus/get/?bureau_id=`;
 
+// SECURITY
+var admin_api_security_change_password_url = `${host}/api/v1/admin/security/password/change`;
+
 // LOGGING INFORMATION
 function show_log_in_console(log){
     if(show_logging_in_console){

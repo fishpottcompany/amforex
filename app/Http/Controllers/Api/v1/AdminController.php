@@ -853,6 +853,63 @@ public function get_one_bureau(Request $request)
         
 }
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION CHANGES A WORKERS PASSWORD
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function change_password(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Security|Admin", "Change password failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+    
+    $request->validate([
+        "admin_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "current_password" => "bail|required|min:8|max:30",
+        "password" => "bail|required|confirmed|min:8|max:30",
+        "admin_pin" => "bail|required|min:4|max:8",
+    ]);
+
+    if (!Hash::check(request()->current_password, auth()->user()->password)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Security|Admin", "Change password failed because of incorrect current password");
+        return response(["status" => "fail", "message" => "Incorrect password."]);
+    }
+
+    if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Security|Admin", "Change password failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $admin = Administrator::where('admin_phone_number', auth()->user()->admin_phone_number)->first();
+
+
+    if ($admin != null && $admin->admin_phone_number == $request->admin_phone_number) {
+        $admin->password =  bcrypt($request->password);
+        $admin->save();
+        $userTokens =  auth()->user()->tokens;
+        foreach($userTokens as $token) {
+            $token->revoke();   
+        }
+        $log_controller->save_log("administrator", $request->admin_phone_number, "Security|Admin", "Password changed");
+        return response(["status" => "success", "message" => "Password changed successfully."]);
+    } else {
+        return response(["status" => "fail", "message" => "Failed to validate operation."]);
+    }
+}
+
+
 
 
 }

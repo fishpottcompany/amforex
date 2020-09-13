@@ -59,6 +59,8 @@ Route::middleware(['auth:api', 'scope:get-one-currency'])->get('/v1/admin/bureau
 
 Route::middleware(['auth:api', 'scope:update-bureau'])->post('/v1/admin/bureaus/edit', 'Api\v1\AdminController@edit_bureau');
 
+Route::middleware('auth:api')->post('/v1/admin/security/password/change', 'Api\v1\AdminController@change_password');
+
 
 
 /*

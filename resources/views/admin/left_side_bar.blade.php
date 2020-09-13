@@ -89,6 +89,12 @@
             <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/rates/list">Edit Admin</a>
           </div>
         </li>
+        <li class="nav-item <?php if(isset($active_page) && $active_page == 'security'){ echo 'active'; } ?>">
+          <a class="nav-link" href="<?php echo url('/'); ?>/admin/security/change">
+            <i class="material-icons">security</i>
+            <p>Change Password</p>
+          </a>
+        </li>
         </ul>
       </div>
     </div>
