@@ -54,6 +54,8 @@ var worker_api_branches_get_branches_list_url = `${host}/api/v1/bureau/branches/
 
 // WORKERS
 var worker_api_workers_add_worker_url = `${host}/api/v1/bureau/workers/add`;
+var worker_api_workers_get_workers_list_url = `${host}/api/v1/bureau/workers/list/?page=`;
+var worker_api_workers_get_one_worker_url = `${host}/api/v1/bureau/workers/get/?worker_id=`;
 
 
 
@@ -139,6 +141,8 @@ function show_notification(id, type, title, message)
     $('#'+id).html(
         '<div id="msg_div" class="' + type + '"><b>' + title +'</b> '+ message +'<a id="close-bar" onclick="hide_notification();">×</a></div>'
     );
+
+    setTimeout(function(){ $('#close-bar').click(); }, 5000);
 }
 
 

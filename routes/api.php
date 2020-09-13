@@ -113,5 +113,9 @@ Route::middleware(['auth:worker', 'scope:worker_view-branches'])->get('/v1/burea
 
 Route::middleware(['auth:worker', 'scope:worker_add-worker'])->post('/v1/bureau/workers/add', 'Api\v1\WorkerController@add_worker');
 
+Route::middleware(['auth:worker', 'scope:worker_view-workers'])->get('/v1/bureau/workers/list', 'Api\v1\WorkerController@get_all_workers');
+
+Route::middleware(['auth:worker', 'scope:worker_view-workers'])->get('/v1/bureau/workers/get', 'Api\v1\WorkerController@get_one_worker');
+
 
 

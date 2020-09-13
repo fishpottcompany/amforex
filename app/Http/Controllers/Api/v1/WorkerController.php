@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\v1\BureauRate;
 use App\Models\v1\CurrencyStock;
 use App\Mail\bureau\PassCodeMail;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -1171,6 +1172,95 @@ public function add_worker(Request $request)
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE WORKERS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_workers(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('worker_view-workers')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Permission denined for trying to view workers");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Fetching all workers failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+    $where_array = array(
+        ['workers.bureau_id', '=', auth()->user()->bureau_id],
+    );
+
+    $workers =  $this->get_workers(100, $where_array);
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $workers]);
+}
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS ONE BUREAU
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_one_worker(Request $request)
+{
+
+    $log_controller = new LogController();
+
+    if (!Auth::guard('worker')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('worker_view-workers')) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Permission denined for trying to view one worker");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "worker_id" => "bail|required|integer",
+    ]);
+
+    if (auth()->user()->worker_flagged) {
+        $log_controller->save_log("worker", auth()->user()->worker_id, "Workers|Worker", "Getting one worker failed because worker is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+
+    $where_array = array(
+        ['workers.worker_id', '=', $request->worker_id],
+        ['workers.bureau_id', '=',  auth()->user()->bureau_id],
+    ); 
+
+    $thisworker = DB::table('workers')
+    ->join('branches', 'workers.branch_id', '=', 'branches.branch_id')
+    ->select('workers.*', 'branches.branch_name')
+    ->where($where_array)
+    ->first();
+
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $thisworker]);
+        
+}
+
 
 
     public function make_worker_ext_id($bureau_id, $branch_id, $worker_phone_number)
@@ -1227,4 +1317,29 @@ public function add_worker(Request $request)
         $worker->save();
 
     }
+
+
+
+    public function get_workers($pagination, $where_array)
+    {
+        $current_workers = DB::table('workers')
+            ->join('branches', 'workers.branch_id', '=', 'branches.branch_id')
+            ->select('workers.*', 'branches.branch_name')
+            ->where($where_array)
+            ->orderBy('workers.worker_id', 'desc')
+            ->simplePaginate($pagination);
+
+        for ($i=0; $i < count($current_workers); $i++) { 
+            if($current_workers[$i]->creator_user_type == "worker"){
+                $this_worker = Worker::find($current_workers[$i]->creator_id);
+                $current_workers[$i]->creator_name = $this_worker->worker_surname . " " . $this_worker->worker_firstname;
+            } else {
+                $current_workers[$i]->creator_name = "Bank Of Ghana";
+            }
+        }
+        
+        return $current_workers;
+        
+    }
+
 }

@@ -1,7 +1,7 @@
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
-$active_page = "transactions";
-$page_name = "Transactions";
+$active_page = "workers";
+$page_name = "Workers";
 ?>
 @extends('layouts.app')
 
@@ -27,51 +27,10 @@ $page_name = "Transactions";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Transactions</h4>
-                      <p class="card-category">The table below shows all the stock of currencies.</p>
+                      <h4 class="card-title">Workers</h4>
+                      <p class="card-category">These are all the workers in the bureau. To change a workers information or permissions, simply click on a lit item in the table to edit</p>
                     </div>
                     <div class="card-body table-responsive">
-
-                    <form class="navbar-form" id="search_form">
-
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label class="bmd-label-floating">Search From(Earliest Date)</label>
-                            <input type="date" min="1"name="end_date" class="form-control" required="required">
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label class="bmd-label-floating">Search To(Latest Date)</label>
-                            <input type="date" min="1" name="start_date" class="form-control" required="required">
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="search_with" id="tradable_input_label">Search With</label>
-                            <select name="search_with"class="form-control" id="search_with" required="required">
-                              <option value="0">Trade ID</option>
-                              <option value="1">Currency-In Abbreviation</option>
-                              <option value="2">Currency-In Amount</option>
-                              <option value="3">Currency-Out Amount</option>
-                              <option value="4">Customer ID</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="input-group no-border">
-                              <input type="text" id="search_form_input" name="kw" value="" class="form-control" placeholder="Search...">
-                              <button type="submit" class="btn btn-default btn-round btn-just-icon">
-                                <i class="material-icons">search</i>
-                                <div class="ripple-container"></div>
-                              </button>
-                          </div>
-                        </div>
-                      </div>
-                    </form>
                       <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
@@ -80,13 +39,12 @@ $page_name = "Transactions";
                       <table class="table table-hover" id="list_table" style="display: none;">
                         <thead class="text-warning">
                           <th class="font-weight-bold">ID</th>
-                          <th class="font-weight-bold">Currency-In</th>
-                          <th class="font-weight-bold">Amt-In</th>
-                          <th class="font-weight-bold">Currency-Out</th>
-                          <th class="font-weight-bold">Amt-Paid-Out</th>
-                          <th class="font-weight-bold">Date</th>
-                          <th class="font-weight-bold">Worker Name</th>
-                          <!--<th class="font-weight-bold">Edit</th>-->
+                          <th class="font-weight-bold">Fullname</th>
+                          <th class="font-weight-bold">Phone</th>
+                          <th class="font-weight-bold">Email</th>
+                          <th class="font-weight-bold">Branch</th>
+                          <th class="font-weight-bold">Flagged</th>
+                          <th class="font-weight-bold">Added-By</th>
                         </thead>
                         <tbody id="table_body_list">
                         </tbody>
@@ -97,8 +55,8 @@ $page_name = "Transactions";
               </div>
               <div class="row">
                 <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4" id="pagination_buttons">
-                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/transactions/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
-                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/transactions/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
+                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/workers/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
+                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/workers/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
                 </div>
               </div>
             </div>
@@ -148,9 +106,9 @@ $page_name = "Transactions";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR bureau -->
-    <script src="/js/bureau/trades.js"></script>
+    <script src="/js/bureau/workers.js"></script>
     <script type="text/javascript">
-      get_trades_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
+      get_workers_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
     </script>
   </body>
   </body>

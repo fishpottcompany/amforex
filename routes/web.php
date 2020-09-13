@@ -171,6 +171,10 @@ Route::get('/bureau/workers/list', function () {
     return view('bureau/workers/list');
 });
 
+Route::get('/bureau/workers/edit/{id}', function ($id) {
+    return view('bureau/workers/edit', ['worker_id' => $id]);
+});
+
 // BRANCHES
 Route::get('/bureau/branches/add', function () {
     return view('bureau/branches/add');
@@ -181,3 +185,4 @@ Route::get('/bureau/branches/add', function () {
 Route::get('/bureau/security/change', function () {
     return view('bureau/security/add');
 });
+

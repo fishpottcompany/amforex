@@ -122,6 +122,7 @@ function show_notification(id, type, title, message)
     $('#'+id).html(
         '<div id="msg_div" class="' + type + '"><b>' + title +'</b> '+ message +'<a id="close-bar" onclick="hide_notification();">×</a></div>'
     );
+    setTimeout(function(){ $('#close-bar').click(); }, 5000);
 }
 
 
