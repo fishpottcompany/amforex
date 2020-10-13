@@ -11,7 +11,6 @@ var host = "http://amforex";
 var admin_api_login_url = `${host}/api/v1/admin/login`;
 var admin_web_login_page_url = `${host}/admin/login`;
 
-
 // PASSCODE VERIFICATION PAGE URL
 var admin_api_send_passcode_url = `${host}/api/v1/admin/verification`;
 var admin_api_resend_passcode_url = `${host}/api/v1/admin/resend`;
@@ -46,6 +45,9 @@ var admin_api_bureaus_get_one_bureau_url = `${host}/api/v1/admin/bureaus/get/?bu
 
 // SECURITY
 var admin_api_security_change_password_url = `${host}/api/v1/admin/security/password/change`;
+
+// ADMINISTRATOR
+var admin_api_administrators_add_administrator_url = `${host}/api/v1/admin/administrators/add`;
 
 // LOGGING INFORMATION
 function show_log_in_console(log){

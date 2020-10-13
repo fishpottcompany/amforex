@@ -61,6 +61,8 @@ Route::middleware(['auth:api', 'scope:update-bureau'])->post('/v1/admin/bureaus/
 
 Route::middleware('auth:api')->post('/v1/admin/security/password/change', 'Api\v1\AdminController@change_password');
 
+Route::middleware(['auth:api', 'scope:add-admin'])->post('/v1/admin/administrators/add', 'Api\v1\AdminController@add_admin');
+
 
 
 /*

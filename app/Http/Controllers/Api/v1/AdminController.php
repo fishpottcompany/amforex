@@ -909,6 +909,127 @@ public function change_password(Request $request)
     }
 }
 
+public function add_admin(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('add-admin')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Permission denined for trying to add administrator");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Adding administrator failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Security|Admin", "Addming administrator failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $validatedData = $request->validate([
+        "admin_surname" => "bail|required|max:55",
+        "admin_firstname" => "bail|required|max:55",
+        "admin_othernames" => "bail|max:55",
+        "admin_phone_number" => "bail|required|regex:/(0)[0-9]{9}/|min:10|max:10",
+        "admin_email" => "bail|email|required|max:100",
+        "add_currency" => "bail|nullable|regex:(add-currency)",
+        "view_currencies" => "bail|nullable|regex:(view-currencies)",
+        "get_one_currency" => "bail|nullable|regex:(get-one-currency)",
+        "update_currency" => "bail|nullable|regex:(update-currency)",
+        "add_rate" => "bail|nullable|regex:(add-rate)",
+        "view_rates" => "bail|nullable|regex:(view-rates)",
+        "get_one_rate" => "bail|nullable|regex:(get-one-rate)",
+        "update_rate" => "bail|nullable|regex:(update-rate)",
+        "add_bureau" => "bail|nullable|regex:(add-bureau)",
+        "view_bureaus" => "bail|nullable|regex:(view-bureaus)",
+        "get_one_bureau" => "bail|nullable|regex:(get-one-bureau)",
+        "update_bureau" => "bail|nullable|regex:(update-bureau)",
+        "add_admin" => "bail|nullable|regex:(add-admin)",
+        "view_admins" => "bail|nullable|regex:(view-admins)",
+        "edit_admin" => "bail|nullable|regex:(edit-admin)",
+        "view_reports" => "bail|nullable|regex:(view-reports)",
+        "admin_pin" => "bail|required|min:4|max:8",
+    ]);
+
+
+    $admin = Administrator::where('admin_phone_number', $request->admin_phone_number)->first();
+    $admin2 = Administrator::where('admin_email', $request->admin_email)->first();
+
+    if ($admin != null && $admin->admin_phone_number == $request->admin_phone_number) {
+        return response(["status" => "fail", "message" => "The phone number is registered to another administrator."]);
+    } else if ($admin2 != null && $admin2->admin_email == $request->admin_email) {
+        return response(["status" => "fail", "message" => "The email address is registered to another administrator."]);
+    } else {
+        $validatedData["admin_pin"] = Hash::make(substr($request->admin_phone_number,-4));
+        $validatedData["password"] = bcrypt($request->admin_phone_number);
+        $validatedData["admin_flagged"] = false;
+    
+        $validatedData["admin_scope"] = "";
+
+        if(trim($request->add_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"] . $request->add_currency;
+        }
+        if(trim($request->view_currencies) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_currencies;
+        }
+        if(trim($request->get_one_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_currency;
+        }
+        if(trim($request->update_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_currency;
+        }
+        if(trim($request->add_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_rate;
+        }
+        if(trim($request->view_rates) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_rates;
+        }
+        if(trim($request->get_one_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_rate;
+        }
+        if(trim($request->update_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_rate;
+        }
+        if(trim($request->add_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_bureau;
+        }
+        if(trim($request->view_bureaus) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_bureaus;
+        }
+        if(trim($request->get_one_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_bureau;
+        }
+        if(trim($request->update_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_bureau;
+        }
+        if(trim($request->add_admin) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_admin;
+        }
+        if(trim($request->view_admins) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_admins;
+        }
+        if(trim($request->edit_admin) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->edit_admin;
+        }
+        if(trim($request->view_reports) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_reports;
+        }
+    
+    
+        $administrator = Administrator::create($validatedData);
+        return response(["status" => "success", "message" => "Administrator added successsfully."]);
+    }
+
+
+}
+
 
 
 

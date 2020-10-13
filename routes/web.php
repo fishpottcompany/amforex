@@ -85,6 +85,20 @@ Route::get('/admin/security/change', function () {
 });
 
 
+// ADMINS
+Route::get('/admin/admins/add', function () {
+    return view('admin/admins/add');
+});
+
+Route::get('/admin/admins/list', function () {
+    return view('admin/admins/list');
+});
+
+Route::get('/admin/admins/edit/{id}', function ($id) {
+    return view('admin/admins/edit', ['admin_id' => $id]);
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | BUREAU ROUTES  ---------- WEB  ---------- WEB  ---------- WEB
