@@ -63,6 +63,12 @@ Route::middleware('auth:api')->post('/v1/admin/security/password/change', 'Api\v
 
 Route::middleware(['auth:api', 'scope:add-admin'])->post('/v1/admin/administrators/add', 'Api\v1\AdminController@add_admin');
 
+Route::middleware(['auth:api', 'scope:view-admins'])->get('/v1/admin/administrators/list', 'Api\v1\AdminController@get_all_admins');
+
+Route::middleware(['auth:api', 'scope:view-admins'])->get('/v1/admin/administrators/get', 'Api\v1\AdminController@get_one_admin');
+
+Route::middleware(['auth:api', 'scope:edit-admin'])->post('/v1/admin/administrators/edit', 'Api\v1\AdminController@edit_admin');
+
 
 
 /*

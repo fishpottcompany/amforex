@@ -21,7 +21,26 @@ $(document).ready(function ()
        send_restapi_request_to_server_from_form("post", admin_api_administrators_add_administrator_url, bearer, form_data, "json", add_administrator_success_response_function, add_administrator_error_response_function);
    });
    
-   /*
+    /*
+    |--------------------------------------------------------------------------
+    | EDITING ADMIN FUNCTION
+    |--------------------------------------------------------------------------
+    |
+    */
+    $("#eform").submit(function (e) 
+    { 
+        e.preventDefault(); 
+        fade_in_loader_and_fade_out_form("loader", "eform");
+        var form_data = $("#eform").serialize();
+        var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
+        show_log_in_console("form_data: " + form_data);
+        
+        show_log_in_console("url: " + admin_api_administrators_edit_administrator_url);
+        
+        send_restapi_request_to_server_from_form("post", admin_api_administrators_edit_administrator_url, bearer, form_data, "json", add_administrator_success_response_function, add_administrator_error_response_function);
+    });
+
+/*
     |--------------------------------------------------------------------------
     | WHEN A BUREAU LIST ITEM IS CLICKED, WE SEND THEM TO THE EDIT PAGE.
     |--------------------------------------------------------------------------
@@ -66,70 +85,30 @@ function add_administrator_error_response_function(errorThrown)
 
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF ALL BRANCHES RESPONSE FUNCTIONS
+| GETTING THE LIST OF ADMINS FOR A SPECIFIC PAGE RESPONSE FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
 */
-function get_all_branches_success_response_function(response)
-{
-    fade_out_loader_and_fade_in_form("loader", "form"); 
-    if(response.data.length > 0){
-        for (let index = 0; index < response.data.length; index++) {
-            const element = response.data[index];
-            $('#branch_id').append(
-                '<option value="' + element.branch_id + '">' + element.branch_name + '</option>'
-            );
-        }
-        $('#submit_button_form').append(
-            '<button type="submit" class="btn btn-primary pull-right">Add/Update</button>'
-        );
-    } else {
-        show_notification("msg_holder", "danger", "", "No branches found. Add a branch to the bureau");
-    }
-}
-
-
-function get_all_branches_error_response_function(errorThrown)
-{
-    show_notification("msg_holder", "danger", "Error", errorThrown);
-}
-
-
-function get_all_branches()
-{
-    fade_in_loader_and_fade_out_form("loader", "form");   
-    var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
-    send_restapi_request_to_server_from_form("get", worker_api_branches_get_branches_list_url, bearer, "", "json", get_all_branches_success_response_function, get_all_branches_error_response_function);
-}
-
-/*
-|--------------------------------------------------------------------------
-| GETTING THE LIST OF WORKERS FOR A SPECIFIC PAGE RESPONSE FUNCTIONS
-|--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
-|
-*/
-function get_workers_for_page_success_response_function(response)
+function get_admins_for_page_success_response_function(response)
 {
     fade_out_loader_and_fade_in_form("loader", "list_table"); 
     if(response.data.data.length > 0){
         for (let index = 0; index < response.data.data.length; index++) {
             const element = response.data.data[index];
-            if(element.worker_flagged == 0){
-                worker_flagged = "No";
+            if(element.admin_flagged == 0){
+                admin_flagged = "No";
             } else {
-                worker_flagged = "Yes";
+                admin_flagged = "Yes";
             }
-            url = host + "/bureau/workers/edit/" + element.worker_id;
+            url = host + "/admin/administrators/edit/" + element.admin_id;
             $('#table_body_list').append(
                 '<tr style="cursor: pointer;"  class="thisworker" data-url="' + url + '">'
-                + '<td>' + element.worker_id + '</td>'
-                + '<td>' + element.worker_surname + ' ' + element.worker_firstname +  '</td>'
-                + '<td>' + element.worker_phone_number + '</td>'
-                + '<td>' + element.worker_email + '</td>'
-                +' <td>' + element.branch_name + '</td>'
-                + '<td>' + worker_flagged + '</td>'
+                + '<td>' + element.admin_id + '</td>'
+                + '<td>' + element.admin_surname + ' ' + element.admin_firstname +  '</td>'
+                + '<td>' + element.admin_phone_number + '</td>'
+                + '<td>' + element.admin_email + '</td>'
+                + '<td>' + admin_flagged + '</td>'
                 + '<td>' + element.creator_name + '</td>'
                 + '</tr>'
             );
@@ -137,11 +116,11 @@ function get_workers_for_page_success_response_function(response)
         }
         document.getElementById("next_btn").style.display = "";
     } else {
-        show_notification("msg_holder", "danger", "", "No workers found");
+        show_notification("msg_holder", "danger", "", "No admins found");
     }
 }
 
-function get_workers_for_page_error_response_function(errorThrown)
+function get_admins_for_page_error_response_function(errorThrown)
 {
     show_notification("msg_holder", "danger", "Error", errorThrown);
 }
@@ -149,17 +128,17 @@ function get_workers_for_page_error_response_function(errorThrown)
 
 /*
 |--------------------------------------------------------------------------
-| GETTING THE LIST OF WORKERS FUNCTIONS
+| GETTING THE LIST OF admins FUNCTIONS
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
 */
-function get_workers_for_page(page_number)
+function get_admins_for_page(page_number)
 {
     fade_in_loader_and_fade_out_form("loader", "list_table");   
-    var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
-    url = worker_api_workers_get_workers_list_url + page_number;
-    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", get_workers_for_page_success_response_function, get_workers_for_page_error_response_function);
+    var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
+    url = admin_api_admins_get_admins_list_url + page_number;
+    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", get_admins_for_page_success_response_function, get_admins_for_page_error_response_function);
 }
 
 
@@ -169,35 +148,51 @@ function get_workers_for_page(page_number)
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
 |
-*/
-function get_this_worker_success_response_function(response)
-{
-    if(response.data != null && response.data.worker_ext_id != ""){
-            const element = response.data;
-            document.getElementById("branch_name_label").innerHTML = "  |   Current Branch: " + element.branch_name;
-            $("#worker_surname").val(element.worker_surname);
-            $("#worker_firstname").val(element.worker_firstname);
-            $("#worker_othernames").val(element.worker_othernames);
-            $("#worker_home_gps_address").val(element.worker_home_gps_address);
-            $("#worker_home_location").val(element.worker_home_location);
-            $("#worker_position").val(element.worker_position);
-            $("#worker_phone_number").val(element.worker_phone_number);
-            $("#worker_email").val(element.worker_email);
 
-            if(element.worker_flagged == 0){
-                worker_flagged = "Un-flagged";
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Admin Phone Number</label>
+                          <input type="text" maxlength="10" id="admin_phone_number" name="admin_phone_number" class="form-control" >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Admin Email</label>
+                          <input type="text" maxlength="100" id="admin_email" name="admin_email" class="form-control" >
+                        </div>
+                      </div>
+                    </div>
+*/
+function get_this_admin_success_response_function(response)
+{
+    if(response.data != null && response.data.admin_id != ""){
+            const element = response.data[0];
+            $("#admin_surname").val(element.admin_surname);
+            $("#admin_firstname").val(element.admin_firstname);
+            $("#admin_othernames").val(element.admin_othernames);
+            //$("#admin_phone_number").val(element.admin_phone_number);
+            //$("#admin_email").val(element.admin_email);
+
+            if(element.admin_flagged == 0){
+                admin_flagged = "Un-flagged";
             } else {
-                worker_flagged = "Flagged";
+                admin_flagged = "Flagged";
             }
-            document.getElementById("worker_flagged_label").innerHTML = "  |   Current Status: " + worker_flagged;
-            get_all_branches(); 
+            
+            document.getElementById("admin_flagged_label").innerHTML = " |   Current Status: " + admin_flagged;
+            document.getElementById("button_holder").innerHTML = '<button type="submit" class="btn btn-primary pull-right">Edit</button>';
+            $('#loader').hide();
+            $('#eform').fadeIn();
     } else {
         $('#loader').fadeOut();
-        show_notification("msg_holder", "danger", "", "Worker not found");
+        show_notification("msg_holder", "danger", "", "Admin not found");
     }
 }
 
-function get_this_worker_error_response_function(errorThrown)
+function get_this_admin_error_response_function(errorThrown)
 {
     $('#loader').fadeOut();
     show_notification("msg_holder", "danger", "Error", errorThrown);
@@ -208,15 +203,15 @@ function get_this_worker_error_response_function(errorThrown)
 |--------------------------------------------------------------------------
 | FETCHING A SINGLE WORKER FUNCTION
 |--------------------------------------------------------------------------
-|--------------------------------------------------------------------------
+
 |
 */
 
-function get_this_worker(worker_id)
+function get_this_admin(admin_id)
 {
     fade_in_loader_and_fade_out_form("loader", "form");   
-    var bearer = "Bearer " + localStorage.getItem("worker_access_token"); 
-    url = worker_api_workers_get_one_worker_url + worker_id;
+    var bearer = "Bearer " + localStorage.getItem("admin_access_token"); 
+    url = admin_api_admins_get_one_admin_url + admin_id;
     show_log_in_console("url: " + url);
-    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", get_this_worker_success_response_function, get_this_worker_error_response_function);
+    send_restapi_request_to_server_from_form("get", url, bearer, "", "json", get_this_admin_success_response_function, get_this_admin_error_response_function);
 }

@@ -24,6 +24,7 @@ class CreateAdministratorsTable extends Migration
             $table->string('password', 255);
             $table->text('admin_scope');
             $table->boolean('admin_flagged');
+            $table->unsignedBigInteger('creator_admin_id');
             $table->timestamps();
         });
     }

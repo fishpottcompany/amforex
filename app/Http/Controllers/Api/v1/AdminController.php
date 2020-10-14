@@ -959,6 +959,7 @@ public function add_admin(Request $request)
     ]);
 
 
+
     $admin = Administrator::where('admin_phone_number', $request->admin_phone_number)->first();
     $admin2 = Administrator::where('admin_email', $request->admin_email)->first();
 
@@ -1031,6 +1032,229 @@ public function add_admin(Request $request)
 }
 
 
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS THE LIST OF ALL THE BUREAUS
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_all_admins(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+    
+    if (!$request->user()->tokenCan('view-admins')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Permission denined for trying to view administrators");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Fetching administrators failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    $request->validate([
+        "page" => "bail|required|integer",
+    ]);
+
+
+
+    $admins = DB::table('administrators')
+    ->select('administrators.*')
+    ->simplePaginate(50);
+
+    for ($i=0; $i < count($admins); $i++) { 
+
+        $this_admin = DB::table('administrators')
+        ->where("admin_id", "=", $admins[$i]->creator_admin_id)
+        ->get();
+        
+        $admins[$i]->creator_name = $this_admin[0]->admin_firstname . " " . $this_admin[0]->admin_surname;
+    }
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $admins]);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+| THIS FUNCTION GETS ONE ADMIN
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+*/
+public function get_one_admin(Request $request)
+{
+
+    $log_controller = new LogController();
+    $admin_controller = new AdminController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('view-admins')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Permission denined for trying to view one admin");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    $request->validate([
+        "admin_id" => "bail|required|integer",
+    ]);
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Getting one admin failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+
+    $where_array = array(
+        ['administrator.admin_id', '=', $request->admin_id],
+    ); 
+
+    $this_admin = DB::table('administrators')
+    ->where("admin_id", "=", $request->admin_id)
+    ->get();
+    
+
+
+    return response(["status" => "success", "message" => "Operation successful", "data" => $this_admin]);
+        
+}
+
+
+public function edit_admin(Request $request)
+{
+    $log_controller = new LogController();
+
+    if (!Auth::guard('api')->check()) {
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (!$request->user()->tokenCan('edit-admin')) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Permission denined for trying to update administrator");
+        return response(["status" => "fail", "message" => "Permission Denied. Please log out and login again"]);
+    }
+
+    if (auth()->user()->admin_flagged) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Updating administrator failed because admin is flagged");
+        $request->user()->token()->revoke();
+        return response(["status" => "fail", "message" => "Account access restricted"]);
+    }
+
+    if (!Hash::check($request->admin_pin, auth()->user()->admin_pin)) {
+        $log_controller->save_log("administrator", auth()->user()->admin_id, "Administrators|Admin", "Addming administrator failed because of incorrect pin");
+        return response(["status" => "fail", "message" => "Incorrect pin."]);
+    }
+
+    $validatedData = $request->validate([
+        "admin_id" => "bail|required|integer",
+        "admin_surname" => "bail|required|max:55",
+        "admin_firstname" => "bail|required|max:55",
+        "admin_othernames" => "bail|max:55",
+        "admin_flagged" => "bail|required|integer",
+        "add_currency" => "bail|nullable|regex:(add-currency)",
+        "view_currencies" => "bail|nullable|regex:(view-currencies)",
+        "get_one_currency" => "bail|nullable|regex:(get-one-currency)",
+        "update_currency" => "bail|nullable|regex:(update-currency)",
+        "add_rate" => "bail|nullable|regex:(add-rate)",
+        "view_rates" => "bail|nullable|regex:(view-rates)",
+        "get_one_rate" => "bail|nullable|regex:(get-one-rate)",
+        "update_rate" => "bail|nullable|regex:(update-rate)",
+        "add_bureau" => "bail|nullable|regex:(add-bureau)",
+        "view_bureaus" => "bail|nullable|regex:(view-bureaus)",
+        "get_one_bureau" => "bail|nullable|regex:(get-one-bureau)",
+        "update_bureau" => "bail|nullable|regex:(update-bureau)",
+        "add_admin" => "bail|nullable|regex:(add-admin)",
+        "view_admins" => "bail|nullable|regex:(view-admins)",
+        "edit_admin" => "bail|nullable|regex:(edit-admin)",
+        "view_reports" => "bail|nullable|regex:(view-reports)",
+        "admin_pin" => "bail|required|min:4|max:8",
+    ]);
+    
+
+    $where_array = array(
+        ['administrators.admin_id', '=', $request->admin_id]
+    ); 
+
+
+    $admin = Administrator::where($where_array)->first();
+
+    if ($admin != null && $admin->admin_id == $request->admin_id) {
+    
+        $validatedData["admin_scope"] = "";
+
+        if(trim($request->add_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"] . $request->add_currency;
+        }
+        if(trim($request->view_currencies) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_currencies;
+        }
+        if(trim($request->get_one_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_currency;
+        }
+        if(trim($request->update_currency) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_currency;
+        }
+        if(trim($request->add_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_rate;
+        }
+        if(trim($request->view_rates) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_rates;
+        }
+        if(trim($request->get_one_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_rate;
+        }
+        if(trim($request->update_rate) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_rate;
+        }
+        if(trim($request->add_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_bureau;
+        }
+        if(trim($request->view_bureaus) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_bureaus;
+        }
+        if(trim($request->get_one_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->get_one_bureau;
+        }
+        if(trim($request->update_bureau) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->update_bureau;
+        }
+        if(trim($request->add_admin) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->add_admin;
+        }
+        if(trim($request->view_admins) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_admins;
+        }
+        if(trim($request->edit_admin) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->edit_admin;
+        }
+        if(trim($request->view_reports) != ""){
+            $validatedData["admin_scope"] = $validatedData["admin_scope"]  .  " " .  $request->view_reports;
+        }
+    
+        $admin = Administrator::find($request->admin_id);
+        $admin->admin_surname = $request->admin_surname; 
+        $admin->admin_firstname = $request->admin_firstname;
+        $admin->admin_othernames = $request->admin_othernames;
+        $admin->admin_scope = $validatedData["admin_scope"];
+        $admin->admin_flagged = $request->admin_flagged;
+        $admin->save();
+        return response(["status" => "success", "message" => "Administrator updated successsfully."]);
+    } else {
+        return response(["status" => "fail", "message" => "Administrator not found"]);
+    }
+
+
+}
 
 
 }

@@ -27,31 +27,30 @@ $page_name = "Administrators";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Add An Administrator</h4>
-                      <p class="card-category">Enter the needed information and priviledges of the administrator</p>
+                      <h4 class="card-title">Edit Administrator</h4>
+                      <p class="card-category">Make the needed information and priviledges update of the administrator</p>
                     </div>
                     <div class="card-body">
-                      <div class="row" style="display: none" id="loader">
+                      <div class="row" id="loader">
                         <div class="col-md-12 my-2 d-flex justify-content-center">
                           <div class="dot-spin"></div>
                         </div>
                       </div>
-                      <form id="form">
+                      <form id="eform"  style="display: none">
                     <div class="row">
-                      <div class="col-md-12">
+                      <div class="col-md-12">                        
                         <div class="form-group">
                           <label class="bmd-label-floating">Admin Surname</label>
-                          <input type="text" maxlength="55" name="admin_surname" class="form-control" required="required">
+                          <input type="text" maxlength="55" id="admin_surname" name="admin_surname" class="form-control" required="required">
+                          <input type="hidden" name="admin_id" class="form-control" value="<?php echo intval($admin_id); ?>">
                         </div>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-md-12">
-                        <p class="text-danger font-weight-bold">You have to inform the administrator that their password is their phone number and their PIN is the last 4 numbers of their phone number. Advice them to change it when they first sign in.</p>
-                          
                         <div class="form-group">
                           <label class="bmd-label-floating">Admin Firstname</label>
-                          <input type="text" maxlength="55" name="admin_firstname" class="form-control" required="required">
+                          <input type="text" maxlength="55" id="admin_firstname" name="admin_firstname" class="form-control" required="required">
                         </div>
                       </div>
                     </div>
@@ -59,47 +58,15 @@ $page_name = "Administrators";
                       <div class="col-md-12">
                         <div class="form-group">
                           <label class="bmd-label-floating">Admin Othernames</label>
-                          <input type="text" maxlength="55" name="admin_othernames" class="form-control" >
+                          <input type="text" maxlength="55" id="admin_othernames" name="admin_othernames" class="form-control" >
                         </div>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-md-12">
                         <div class="form-group">
-                          <label class="bmd-label-floating">Admin Phone Number</label>
-                          <input type="text" maxlength="10" name="admin_phone_number" class="form-control" >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Admin Email</label>
-                          <input type="text" maxlength="100" name="admin_email" class="form-control" >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Admin New Pin (Leave Empty If You Do Not Want To Change It)</label>
-                          <input type="password" minlength="4" maxlength="8" name="new_admin_pin" class="form-control" >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Admin New Password (Leave Empty If You Do Not Want To Change It)</label>
-                          <input type="password" minlength="8" maxlength="30" name="password" class="form-control" >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label for="admin_flagged">Flag Worker</label>
-                          <select name="admin_flagged" class="form-control" id="admin_flagged"  required="required">
+                          <label for="worker_flagged">Flag Admin<span id="admin_flagged_label"></span></label>
+                          <select id="notset" name="admin_flagged" class="form-control" id="admin_flagged"  required="required">
                             <option value="">Choose Flag Status</option>
                             <option value="1">Flag</option>
                             <option value="0">Un-Flag</option>
@@ -109,11 +76,9 @@ $page_name = "Administrators";
                     </div>
                     <div class="row">
                       <div class="col-md-12">
-                      <p class="text-danger font-weight-bold">You should let the admin know the password and pin you set. If you left them empty, you have to inform the worker that their password is their phone number and their PIN is the last 4 numbers of their phone number. Advice them to change it when they first sign in.</p>
-                      
-                    </div>
-                  </div>
-                    <div class="row">
+                        <p class="text-danger font-weight-bold">You have to always reset the admin priviledges when you make an update</p>
+                      </div>
+                      <br>
                       <div class="col-md-3">
                         <div class="form-check form-check-inline">
                           <label class="form-check-label">
@@ -137,7 +102,7 @@ $page_name = "Administrators";
                       <div class="col-md-3">
                         <div class="form-check form-check-inline">
                           <label class="form-check-label">
-                            <input class="form-check-input" type="checkbox" name="get_one-currency" value="get-one-currency"> View One Currency
+                            <input class="form-check-input" type="checkbox" name="get_one_currency" value="get-one-currency"> View One Currency
                             <span class="form-check-sign">
                                 <span class="check"></span>
                             </span>
@@ -293,8 +258,7 @@ $page_name = "Administrators";
                           </div>
                         </div>
                       </div>
-
-                      <span id="submit_button_form"></span>
+                      <span id="button_holder"></span>
                       <div class="clearfix"></div>
                       </form>
                     </div>
@@ -348,9 +312,9 @@ $page_name = "Administrators";
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
     <!-- MY CUSTOM SCRIPTS FOR admin -->
-    <script src="/js/admin/workers.js"></script>
+    <script src="/js/admin/admins.js"></script>
     <script type="text/javascript">
-      get_all_branches();
+      get_this_admin('<?php echo intval($admin_id); ?>');
     </script>
   </body>
   </body>

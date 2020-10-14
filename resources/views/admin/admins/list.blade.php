@@ -1,22 +1,22 @@
 <!-- INCLUDING THE FILE THAT HOLDS THE CORE STRUCTURE OF THE PAGE -->
 <?php
-$active_page = "workers";
-$page_name = "Workers";
+$active_page = "administrators";
+$page_name = "Administrators";
 ?>
 @extends('layouts.app')
 
 @section('customscripts')
 <!-- CONFIG AND AUTH CHECK -->
-<script src="/js/bureau/config.js"></script>
-<script src="/js/bureau/check_auth.js"></script>
+<script src="/js/admin/config.js"></script>
+<script src="/js/admin/check_auth.js"></script>
 @endsection()
 
 @section('navbar')
-  @include('bureau.navbar')
+  @include('admin.navbar')
 @endsection
 
 @section('left_side_bar')
-  @include('bureau.left_side_bar')
+  @include('admin.left_side_bar')
 @endsection
 
 <!-- SETTING THE CONTENT AS REQUIRED BY THE CORE STRUCTURE OF THE PAGE -->
@@ -27,8 +27,8 @@ $page_name = "Workers";
                 <div class="col-lg-12 col-md-12">
                   <div class="card">
                     <div class="card-header card-header-warning">
-                      <h4 class="card-title">Workers</h4>
-                      <p class="card-category">These are all the workers in the bureau. To change a workers information or permissions, simply click on a lit item in the table to edit</p>
+                      <h4 class="card-title">Administrators</h4>
+                      <p class="card-category">To change an administrators information or permissions, simply click on a list item in the table to edit</p>
                     </div>
                     <div class="card-body table-responsive">
                       <div class="row" id="loader">
@@ -42,7 +42,6 @@ $page_name = "Workers";
                           <th class="font-weight-bold">Fullname</th>
                           <th class="font-weight-bold">Phone</th>
                           <th class="font-weight-bold">Email</th>
-                          <th class="font-weight-bold">Branch</th>
                           <th class="font-weight-bold">Flagged</th>
                           <th class="font-weight-bold">Added-By</th>
                         </thead>
@@ -55,8 +54,8 @@ $page_name = "Workers";
               </div>
               <div class="row">
                 <div class="offset-lg-5 col-lg-4 offset-md-5 col-md-4" id="pagination_buttons">
-                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/workers/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
-                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/bureau/workers/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
+                  <a id="previous_btn" class="btn btn-default" href="<?php echo url('/'); ?>/admin/administrators/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 1){echo intval($_GET["page"])-1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_left</i></a>
+                  <a id="next_btn" style="display: none" class="btn btn-default" href="<?php echo url('/'); ?>/admin/administrators/list/?page=<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"])+1;} else {echo "1"; } ?>"><i class="material-icons">keyboard_arrow_right</i></a>
                 </div>
               </div>
             </div>
@@ -105,10 +104,10 @@ $page_name = "Workers";
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <!-- Material Dashboard DEMO methods, don't include it in your project! -->
     <script src="/demo/demo.js"></script>
-    <!-- MY CUSTOM SCRIPTS FOR bureau -->
-    <script src="/js/bureau/workers.js"></script>
+    <!-- MY CUSTOM SCRIPTS FOR admin -->
+    <script src="/js/admin/admins.js"></script>
     <script type="text/javascript">
-      get_workers_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
+      get_admins_for_page('<?php if(isset($_GET["page"]) && intval($_GET["page"]) > 0){echo intval($_GET["page"]);} else {echo "1"; } ?>');
     </script>
   </body>
   </body>

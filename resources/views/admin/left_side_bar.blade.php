@@ -84,9 +84,8 @@
             <p>Administrators</p>
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/admins/list">View Admins</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/admins/add">Add Admin</a>
-            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/admins/edit">Edit Admin</a>
+            <a class="dropdown-item text-dark mt-0" href="<?php echo url('/'); ?>/admin/administrators/list">View Admins</a>
+            <a class="dropdown-item text-dark my-0" href="<?php echo url('/'); ?>/admin/administrators/add">Add Admin</a>
           </div>
         </li>
         <li class="nav-item <?php if(isset($active_page) && $active_page == 'security'){ echo 'active'; } ?>">

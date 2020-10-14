@@ -48,6 +48,9 @@ var admin_api_security_change_password_url = `${host}/api/v1/admin/security/pass
 
 // ADMINISTRATOR
 var admin_api_administrators_add_administrator_url = `${host}/api/v1/admin/administrators/add`;
+var admin_api_admins_get_admins_list_url = `${host}/api/v1/admin/administrators/list/?page=`;
+var admin_api_admins_get_one_admin_url = `${host}/api/v1/admin/administrators/get/?admin_id=`;
+var admin_api_administrators_edit_administrator_url = `${host}/api/v1/admin/administrators/edit`;
 
 // LOGGING INFORMATION
 function show_log_in_console(log){

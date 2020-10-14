@@ -86,15 +86,15 @@ Route::get('/admin/security/change', function () {
 
 
 // ADMINS
-Route::get('/admin/admins/add', function () {
+Route::get('/admin/administrators/add', function () {
     return view('admin/admins/add');
 });
 
-Route::get('/admin/admins/list', function () {
+Route::get('/admin/administrators/list', function () {
     return view('admin/admins/list');
 });
 
-Route::get('/admin/admins/edit/{id}', function ($id) {
+Route::get('/admin/administrators/edit/{id}', function ($id) {
     return view('admin/admins/edit', ['admin_id' => $id]);
 });
 
