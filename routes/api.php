@@ -14,15 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::middleware('auth:api')->get('/administrator', function (Request $request) {
-    return $request->user();
-});
-
-
 Route::post('/v1/admin/register', 'Api\v1\AdminController@register');
 
 Route::post('/v1/admin/login', 'Api\v1\AdminController@login');
